@@ -1,6 +1,9 @@
 #ifndef CTETRIS_H
 #define CTETRIS_H
 
+/* Enable POSIX */
+#define __USE_POSIX 1
+
 /* ISO C99 */
 #include <assert.h>
 #include <ctype.h>
