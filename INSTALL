@@ -1,0 +1,5 @@
+    CTetries
+
+Installation
+    $ make          # build
+    $ make install; # as root
