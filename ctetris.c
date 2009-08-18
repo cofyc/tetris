@@ -485,8 +485,10 @@ rand_block()
     struct timeval t;
     gettimeofday(&t, NULL);
     seed += t.tv_sec + t.tv_usec;
-    type = rand_r(&seed);
-    shape = rand_r(&seed);
+    srand(seed);
+    shape = rand();
+    srand(shape);
+    type = rand();
     return get_block(type, shape);
 }
 
