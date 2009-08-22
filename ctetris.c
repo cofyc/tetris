@@ -17,11 +17,11 @@ static int cell_x = 2;
 
 static int cell_y = 1;
 
-static unsigned int step = 400;
+static unsigned int step = 200;
 
 static unsigned int cur_step = 0;
 
-#define win_line 20
+#define win_line 24
 #define win_cols 12
 
 uchar win_buffer[win_line][win_cols];
@@ -474,7 +474,7 @@ check_shape(block *b, int y, int x)
     }
 }
 
-static block *
+inline static block *
 get_block(int type, int shape)
 {
     return &blocks[type % 7][shape % 4];
@@ -553,10 +553,11 @@ msleep(unsigned long milliseconds)
 {
     static struct timespec req, rem;
     time_t sec = (int)(milliseconds / 1000);
+
     milliseconds = milliseconds - (sec * 1000);
     req.tv_sec = sec;
-    req.tv_nsec = milliseconds * 1000L;
-    while (nanosleep(&req, &rem) == -1) 
+    req.tv_nsec = milliseconds * 1000000;
+    while (nanosleep(&req, &rem) == -1)
         continue;
     return 1;
 }
@@ -566,7 +567,7 @@ loop_main(void *arg)
 {
     while (true) {
         loop();
-        msleep(200); // 0.01s
+        msleep(1);            // 1ms = 0.001s = 1000000ns
     }
     return (void *)0;
 }
@@ -639,18 +640,20 @@ main(int argc, const char **argv)
             case 'h':
                 if (check_shape(cur_b, cur_y, cur_x - 1)) {
                     cur_x--;
+                    cur_step = step + 100;
                 }
                 break;
             case 'j':
-                cur_step = step + 100;
                 if (check_shape(cur_b, cur_y + 2, cur_x)) {
                     cur_y += 2;
+                    cur_step = step + 100;
                 }
                 break;
             case 'k':
                 shape++;
                 if (check_shape(get_block(type, shape), cur_y, cur_x)) {
                     cur_b = get_block(type, shape);
+                    cur_step = step + 100;
                 } else {
                     shape--;
                 }
@@ -658,6 +661,7 @@ main(int argc, const char **argv)
             case 'l':
                 if (check_shape(cur_b, cur_y, cur_x + 1)) {
                     cur_x++;
+                    cur_step = step + 100;
                 }
                 break;
             default:
