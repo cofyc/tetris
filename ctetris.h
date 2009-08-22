@@ -21,14 +21,14 @@
 #include <ncurses.h>
 
 #include <unistd.h>
-
+#include <pthread.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <pthread.h>
 
 #define CTETRIS_DEBUG 1
 
 typedef unsigned int uint;
+
 typedef unsigned char uchar;
 
 /* Helper Functions */

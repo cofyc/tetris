@@ -14,15 +14,18 @@
 WINDOW *mainwin, *leftwin, *rightwin;
 
 static int cell_x = 2;
+
 static int cell_y = 1;
 
-static unsigned int step = 400;
+static unsigned int step = 1000;
+
 static unsigned int cur_step = 0;
 
 #define win_line 20
 #define win_cols 12
 
 uchar win_buffer[win_line][win_cols];
+
 uchar win_bg[win_line][win_cols];
 
 typedef struct _block block;
@@ -191,7 +194,6 @@ block blocks[7][4] = {
      },
 };
 
-
 /** 
  *
  * standard screen (window): mainwin
@@ -211,6 +213,7 @@ sig_handler(int sig)
 
     exit(0);
 }
+
 static void
 showCell(int y, int x)
 {
@@ -254,8 +257,11 @@ rotate_block(block *to, block *from)
 block *cur_b = NULL, *prev_b = NULL;
 
 int shape = 0;
+
 int type = 0;
+
 int score = 0;
+
 int cur_y, cur_x;
 
 static void
@@ -271,8 +277,10 @@ updateScore()
 }
 
 static void
-refreshMain(int top_y, int btm_y, int lft_x, int rgt_x) {
+refreshMain(int top_y, int btm_y, int lft_x, int rgt_x)
+{
     int i, j;
+
     block *b = cur_b;
 
     // main block
@@ -339,9 +347,10 @@ static void
 moveBlock(int y, int x, block *b)
 {
     static block *_b = NULL;
+
     static int _y, _x;
 
-    if (!_b)  {
+    if (!_b) {
         _b = b;
         _y = y;
         _x = x;
@@ -353,8 +362,11 @@ moveBlock(int y, int x, block *b)
     }
 
     int top_y = (int)fmin(_y + _b->y_min, y + b->y_min);
+
     int btm_y = (int)fmax(_y + _b->y_max, y + b->y_max);
+
     int lft_x = (int)fmin(_x + _b->x_min, x + b->y_min);
+
     int rgt_x = (int)fmax(_x + _b->x_max, x + b->x_max);
 
     _b = b;
@@ -383,7 +395,7 @@ setBlock(int y, int x, block *b)
     }
 
     int erased_num = 0;
-    int erased_lines[4] = { -1, -1, -1, -1};
+    int erased_lines[4] = { -1, -1, -1, -1 };
     for (i = y + b->y_min; i <= y + b->y_max; i++) {
         for (j = 0; j < win_cols; j++) {
             if (!XSTATUS_OF(win_bg[i][j])) {
@@ -396,12 +408,12 @@ setBlock(int y, int x, block *b)
         }
         refreshMain(i, i, 0, win_cols - 1);
         erased_lines[erased_num++] = i;
-next:
+      next:
         continue;
     }
 
-
     int _i;
+
     for (i = 0; i < erased_num; i++) {
         for (_i = erased_lines[i]; _i >= 0; _i--) {
             for (j = 0; j < win_cols; j++) {
@@ -413,19 +425,18 @@ next:
 
     refreshMain(0, win_line, 0, win_cols - 1);
 
-
     switch (erased_num) {
         case 1:
             score++;
             break;
         case 2:
-            score+=3;
+            score += 3;
             break;
         case 3:
-            score+=7;
+            score += 7;
             break;
         case 4:
-            score+=13;
+            score += 13;
             break;
         default:
             break;
@@ -433,7 +444,6 @@ next:
 
     updateScore();
 }
-
 
 static bool
 check_shape(block *b, int y, int x)
@@ -452,9 +462,9 @@ check_shape(block *b, int y, int x)
 
         for (i = b->y_min; i <= b->y_max; i++) {
             for (j = b->x_min; j <= b->x_max; j++) {
-               if (XSTATUS_OF(b->show[i][j]) && XSTATUS_OF(win_bg[y + i][x + j])) {
-                   return false;
-               }
+                if (XSTATUS_OF(b->show[i][j]) && XSTATUS_OF(win_bg[y + i][x + j])) {
+                    return false;
+                }
             }
         }
 
@@ -462,27 +472,19 @@ check_shape(block *b, int y, int x)
     }
 }
 
-static void settimer()
-{
-   struct itimerval old, new;
-   new.it_interval.tv_usec = 0;
-   new.it_interval.tv_sec = 0;
-   new.it_value.tv_usec = 500; // 0.001s
-   new.it_value.tv_sec = 0;
-   setitimer(ITIMER_REAL, &new, &old);
-}
-
 static block *
 get_block(int type, int shape)
 {
-    return &blocks[type % 7][shape % 4]; 
+    return &blocks[type % 7][shape % 4];
 }
 
 static block *
 rand_block()
 {
     static unsigned int seed = 0;
+
     struct timeval t;
+
     gettimeofday(&t, NULL);
     seed += t.tv_sec + t.tv_usec;
     srand(seed);
@@ -493,9 +495,30 @@ rand_block()
 }
 
 static void
-sig_alarm(int signo)
+mylog(const char *fmt, ...)
 {
+    static FILE *logfile = NULL;
 
+    char msg[1024];
+
+    va_list params;
+
+    va_start(params, fmt);
+
+    if (!logfile) {
+        logfile = fopen("log.txt", "a+");
+    }
+
+    vsnprintf(msg, sizeof(msg), fmt, params);
+    fprintf(logfile, "%s\n", msg);
+
+    fflush(logfile);            /* exit with some unexpected error, string in buffer may not be flushed out */
+    va_end(params);
+}
+
+static void
+loop()
+{
     if (cur_step >= step) {
         if (cur_b) {
             if (check_shape(cur_b, cur_y + 1, cur_x)) {
@@ -520,10 +543,29 @@ sig_alarm(int signo)
         cur_step++;
     }
 
-    settimer(); 
 }
 
+int
+msleep(unsigned long milliseconds)
+{
+    struct timespec ts;
+    time_t sec = (int)(milliseconds / 1000);
+    milliseconds = milliseconds - (sec * 1000);
+    ts.tv_sec = sec;
+    ts.tv_nsec = milliseconds * 1000;
+    nanosleep(&ts, &ts);
+    return 1;
+}
 
+static void *
+loop_main(void *arg)
+{
+    while (true) {
+        loop();
+        msleep(10); // 0.01s
+    }
+    return (void *)0;
+}
 
 int
 main(int argc, const char **argv)
@@ -535,9 +577,6 @@ main(int argc, const char **argv)
 
     if (signal(SIGINT, sig_handler) == SIG_ERR)
         error("signal error");
-
-    if (signal(SIGALRM, sig_alarm) == SIG_ERR)
-        error("signal alarm error");
 
     /* default window called strscr */
     mainwin = initscr();        /* initialize the curses library */
@@ -568,15 +607,21 @@ main(int argc, const char **argv)
         init_pair(7, COLOR_WHITE, COLOR_BLACK);
     }
 
-
     leftwin = newwin(win_line * cell_y, win_cols * cell_x, 0, 0);
     rightwin = newwin(win_line * cell_y, win_cols * cell_x, 0, (win_cols + 2) * cell_x);
     updateScore();
 
+    int err;
 
+    pthread_t loop_pid;
+
+    err = pthread_create(&loop_pid, NULL, loop_main, NULL);
+    if (err != 0) {
+        die("pthread %s creating failed.", "info_printer");
+    }
     // init
-
-    settimer();
+    cur_b = NULL;
+    cur_y = cur_x = 0;
 
     for (;;) {
 
@@ -592,7 +637,7 @@ main(int argc, const char **argv)
             case 'j':
                 cur_step = step + 100;
                 if (check_shape(cur_b, cur_y + 2, cur_x)) {
-                    cur_y+=2;
+                    cur_y += 2;
                 }
                 break;
             case 'k':
@@ -618,4 +663,3 @@ main(int argc, const char **argv)
     /* We're done */
     sig_handler(0);
 }
-

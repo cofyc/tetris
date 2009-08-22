@@ -4,8 +4,8 @@ all::
 CC = gcc
 RM = rm -f
 
-CFLAGS = -std=c99 -O2 -Wall
-LDFLAGS = -lncurses -lm
+CFLAGS = -std=c99 -g -O2 -Wall -D_POSIX_SOURCE -D_GNU_SOURCE
+LDFLAGS = -lncurses -lm -lpthread
 
 LIB_H += ctetris.h
 
