@@ -17,7 +17,7 @@ static int cell_x = 2;
 
 static int cell_y = 1;
 
-static unsigned int step = 1000;
+static unsigned int step = 400;
 
 static unsigned int cur_step = 0;
 
@@ -254,6 +254,8 @@ rotate_block(block *to, block *from)
     to->y_max = from->x_max;
 }
 
+pthread_mutex_t lock;
+pthread_cond_t ready;
 block *cur_b = NULL, *prev_b = NULL;
 
 int shape = 0;
@@ -519,6 +521,7 @@ mylog(const char *fmt, ...)
 static void
 loop()
 {
+    pthread_mutex_lock(&lock);
     if (cur_step >= step) {
         if (cur_b) {
             if (check_shape(cur_b, cur_y + 1, cur_x)) {
@@ -542,18 +545,19 @@ loop()
     } else {
         cur_step++;
     }
-
+    pthread_mutex_unlock(&lock);
 }
 
 int
 msleep(unsigned long milliseconds)
 {
-    struct timespec ts;
+    static struct timespec req, rem;
     time_t sec = (int)(milliseconds / 1000);
     milliseconds = milliseconds - (sec * 1000);
-    ts.tv_sec = sec;
-    ts.tv_nsec = milliseconds * 1000;
-    nanosleep(&ts, &ts);
+    req.tv_sec = sec;
+    req.tv_nsec = milliseconds * 1000L;
+    while (nanosleep(&req, &rem) == -1) 
+        continue;
     return 1;
 }
 
@@ -562,7 +566,7 @@ loop_main(void *arg)
 {
     while (true) {
         loop();
-        msleep(10); // 0.01s
+        msleep(200); // 0.01s
     }
     return (void *)0;
 }
@@ -613,19 +617,21 @@ main(int argc, const char **argv)
 
     int err;
 
+    // init
+    cur_b = NULL;
+    cur_y = cur_x = 0;
+
     pthread_t loop_pid;
 
     err = pthread_create(&loop_pid, NULL, loop_main, NULL);
     if (err != 0) {
         die("pthread %s creating failed.", "info_printer");
     }
-    // init
-    cur_b = NULL;
-    cur_y = cur_x = 0;
 
     for (;;) {
 
         int c = wgetch(rightwin);       /* refresh, accept single keystroke of input */
+        pthread_mutex_lock(&lock);
 
         /* process the command keystroke */
         switch (c) {
@@ -658,6 +664,7 @@ main(int argc, const char **argv)
         }
 
         moveBlock(cur_y, cur_x, cur_b);
+        pthread_mutex_unlock(&lock);
     }
 
     /* We're done */
