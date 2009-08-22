@@ -631,6 +631,7 @@ main(int argc, const char **argv)
     for (;;) {
 
         int c = wgetch(rightwin);       /* refresh, accept single keystroke of input */
+
         pthread_mutex_lock(&lock);
 
         /* process the command keystroke */
@@ -663,7 +664,6 @@ main(int argc, const char **argv)
                 break;
         }
 
-        moveBlock(cur_y, cur_x, cur_b);
         pthread_mutex_unlock(&lock);
     }
 
