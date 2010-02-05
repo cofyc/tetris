@@ -1,10 +1,10 @@
-
 CTetris:
 
     "CTetris" stands for C of Teteris
 
+Naming Convention:
+    Lowercase   Capitalization  Uppercase
+    ctetris     CTetris         CTETRIS 
+
 Docs:
     * http://en.wikipedia.org/wiki/tetris
-
-Author:
-    Yecheng Fu <yecheng.fu@gmail.com>
