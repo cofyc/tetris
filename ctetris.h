@@ -49,4 +49,26 @@ extern void *xcalloc(size_t nmemb, size_t size);
 
 extern char *xstrndup(const char *str, size_t len);
 
+static inline void
+mylog(const char *fmt, ...)
+{
+    static FILE *logfile = NULL;
+
+    char msg[1024];
+
+    va_list params;
+
+    va_start(params, fmt);
+
+    if (!logfile) {
+        logfile = fopen("log.txt", "a+");
+    }
+
+    vsnprintf(msg, sizeof(msg), fmt, params);
+    fprintf(logfile, "%s\n", msg);
+
+    fflush(logfile);            /* exit with some unexpected error, string in buffer may not be flushed out */
+    va_end(params);
+}
+
 #endif

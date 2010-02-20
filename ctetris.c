@@ -1,4 +1,5 @@
 #include "ctetris.h"
+#include "ct_blocks.h"
 
 /**
  * lines -> Y (i)
@@ -17,192 +18,15 @@ static int cell_x = 2;
 
 static int cell_y = 1;
 
-static unsigned int step = 200;
+static unsigned int step = 30;
 
 static unsigned int cur_step = 0;
 
 #define win_line 24
 #define win_cols 12
-
 uchar win_buffer[win_line][win_cols];
 
 uchar win_bg[win_line][win_cols];
-
-typedef struct _block block;
-
-#define XCOLOR_OF(cell)     ((cell) & 0x0F)
-#define XSTATUS_OF(cell)    ((cell) >> 7)
-
-struct _block {
-    uchar show[4][4];
-    int x_min;
-    int x_max;
-    int y_min;
-    int y_max;
-};
-
-block blocks[7][4] = {
-    /*
-     * ----------
-     * |        |
-     * |  [][]  |
-     * |  [][]  |
-     * |        |
-     * ----------
-     */
-    {
-     {
-      {
-       {0, 0, 0, 0},
-       {0, 0x81, 0x81, 0},
-       {0, 0x81, 0x81, 0},
-       {0, 0, 0, 0}
-       },
-      1,
-      2,
-      1,
-      2},
-     // 
-     },
-    /*
-     * ----------
-     * |        |
-     * |[][][]  |
-     * |  []    |
-     * |        |
-     * ----------
-     */
-    {
-     {
-      {
-       {0, 0, 0, 0},
-       {0x82, 0x82, 0x82, 0},
-       {0, 0x82, 0, 0},
-       {0, 0, 0, 0},
-       },
-      0,
-      2,
-      1,
-      2},
-     //
-     },
-    /*
-     * ----------
-     * |        |
-     * |[][]    |
-     * |  [][]  |
-     * |        |
-     * ----------
-     */
-    {
-     {
-      {
-       {0, 0, 0, 0},
-       {0x83, 0x83, 0, 0},
-       {0, 0x83, 0x83, 0},
-       {0, 0, 0, 0},
-       },
-      0,
-      2,
-      1,
-      2},
-     },
-    /*
-     * ----------
-     * |        |
-     * |  [][]  |
-     * |[][]    |
-     * |        |
-     * ----------
-     */
-    {
-     {
-      {
-       {0, 0, 0, 0},
-       {0, 0x84, 0x84, 0},
-       {0x84, 0x84, 0, 0},
-       {0, 0, 0, 0},
-       },
-      0,
-      2,
-      1,
-      2},
-     },
-    /*
-     * ----------
-     * |        |
-     * |[][][]  |
-     * |    []  |
-     * |        |
-     * ----------
-     */
-    {
-     {
-      {
-       {0, 0, 0, 0},
-       {0x85, 0x85, 0x85, 0},
-       {0, 0, 0x85, 0},
-       {0, 0, 0, 0},
-       },
-      0,
-      2,
-      1,
-      2},
-     },
-    /*
-     * ----------
-     * |        |
-     * |[][][]  |
-     * |[]      |
-     * |        |
-     * ----------
-     */
-    {
-     {
-      {
-       {0, 0, 0, 0},
-       {0x86, 0x86, 0x86, 0},
-       {0x86, 0, 0, 0},
-       {0, 0, 0, 0},
-       },
-      0,
-      2,
-      1,
-      2},
-     },
-    /*
-     * ----------
-     * |        |
-     * |[][][][]|
-     * |        |
-     * |        |
-     * ----------
-     */
-    {
-     {
-      {
-       {0, 0, 0, 0},
-       {0x87, 0x87, 0x87, 0x87},
-       {0, 0, 0, 0},
-       {0, 0, 0, 0},
-       },
-      0,
-      3,
-      1,
-      1,
-      }
-     },
-};
-
-/** 
- *
- * standard screen (window): mainwin
- *
- * (0, 0) 
- *
- *
- *
- */
 
 static void
 sig_handler(int sig)
@@ -230,37 +54,6 @@ showCell(int y, int x)
     }
 }
 
-/**
- *
- * 90" clockwise rotation
- *
- * y axis -> x axis
- * x axis -> reverse of x axis
- */
-static void
-rotate_block(block *to, block *from)
-{
-    int i, j;
-
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            to->show[i][j] = from->show[4 - 1 - j][i];
-        }
-    }
-
-    to->x_min = 4 - 1 - from->y_max;
-    to->x_max = 4 - 1 - from->y_min;
-    to->y_min = from->x_min;
-    to->y_max = from->x_max;
-}
-
-pthread_mutex_t lock;
-pthread_cond_t ready;
-block *cur_b = NULL, *prev_b = NULL;
-
-int shape = 0;
-
-int type = 0;
 
 int score = 0;
 
@@ -270,7 +63,7 @@ static void
 updateScore()
 {
     mvwprintw(rightwin, 1, 1, "score: %d", score);
-    mvwprintw(rightwin, 2, 1, "         ", score);
+    mvwprintw(rightwin, 2, 1, "         ");
     mvwprintw(rightwin, 3, 1, "left: h");
     mvwprintw(rightwin, 4, 1, "right: l");
     mvwprintw(rightwin, 5, 1, "speed: j");
@@ -283,23 +76,23 @@ refreshMain(int top_y, int btm_y, int lft_x, int rgt_x)
 {
     int i, j;
 
-    block *b = cur_b;
+    struct block *b = cur_b;
 
     // main block
-    wattrset(mainwin, COLOR_PAIR(7 % 8));
+    wattrset(leftwin, COLOR_PAIR(7 % 8));
     for (i = win_line; i < win_line + 1; i++) {
         for (j = 0; j < win_cols + 1; j++) {
-            mvwaddch(mainwin, i * cell_y, j * cell_x, '[');
-            mvwaddch(mainwin, i * cell_y, j * cell_x + 1, ']');
+            mvwaddch(leftwin, i * cell_y, j * cell_x, '[');
+            mvwaddch(leftwin, i * cell_y, j * cell_x + 1, ']');
         }
     }
     for (i = 0; i < win_line + 1; i++) {
         for (j = win_cols; j < win_cols + 1; j++) {
-            mvwaddch(mainwin, i * cell_y, j * cell_x, '[');
-            mvwaddch(mainwin, i * cell_y, j * cell_x + 1, ']');
+            mvwaddch(leftwin, i * cell_y, j * cell_x, '[');
+            mvwaddch(leftwin, i * cell_y, j * cell_x + 1, ']');
         }
     }
-    wrefresh(mainwin);
+    wrefresh(leftwin);
 
     // cur bg
     for (i = 0; i < win_line; i++) {
@@ -326,29 +119,14 @@ refreshMain(int top_y, int btm_y, int lft_x, int rgt_x)
 
     wrefresh(leftwin);
 
-    // leftwin
-    updateScore();
-}
-
-/*
- * init all blocks
- */
-static void
-init_blocks()
-{
-    int i, j;
-
-    for (i = 0; i < 7; i++) {
-        for (j = 1; j < 4; j++) {
-            rotate_block(&blocks[i][j], &blocks[i][j - 1]);
-        }
-    }
+    //
+//    updateScore();
 }
 
 static void
-moveBlock(int y, int x, block *b)
+moveBlock(int y, int x, struct block *b)
 {
-    static block *_b = NULL;
+    static struct block *_b = NULL;
 
     static int _y, _x;
 
@@ -379,7 +157,7 @@ moveBlock(int y, int x, block *b)
 }
 
 static void
-setBlock(int y, int x, block *b)
+setBlock(int y, int x, struct block *b)
 {
     int i, j;
 
@@ -408,6 +186,7 @@ setBlock(int y, int x, block *b)
         for (j = 0; j < win_cols; j++) {
             win_bg[i][j] = 0;
         }
+
         refreshMain(i, i, 0, win_cols - 1);
         erased_lines[erased_num++] = i;
       next:
@@ -448,7 +227,7 @@ setBlock(int y, int x, block *b)
 }
 
 static bool
-check_shape(block *b, int y, int x)
+check_shape(struct block *b, int y, int x)
 {
     // bg blocks
     if (x + b->x_min < 0) {
@@ -474,54 +253,10 @@ check_shape(block *b, int y, int x)
     }
 }
 
-inline static block *
-get_block(int type, int shape)
-{
-    return &blocks[type % 7][shape % 4];
-}
-
-static block *
-rand_block()
-{
-    static unsigned int seed = 0;
-
-    struct timeval t;
-
-    gettimeofday(&t, NULL);
-    seed += t.tv_sec + t.tv_usec;
-    srand(seed);
-    shape = rand();
-    srand(shape);
-    type = rand();
-    return get_block(type, shape);
-}
 
 static void
-mylog(const char *fmt, ...)
+loop_main()
 {
-    static FILE *logfile = NULL;
-
-    char msg[1024];
-
-    va_list params;
-
-    va_start(params, fmt);
-
-    if (!logfile) {
-        logfile = fopen("log.txt", "a+");
-    }
-
-    vsnprintf(msg, sizeof(msg), fmt, params);
-    fprintf(logfile, "%s\n", msg);
-
-    fflush(logfile);            /* exit with some unexpected error, string in buffer may not be flushed out */
-    va_end(params);
-}
-
-static void
-loop()
-{
-    pthread_mutex_lock(&lock);
     if (cur_step >= step) {
         if (cur_b) {
             if (check_shape(cur_b, cur_y + 1, cur_x)) {
@@ -545,37 +280,13 @@ loop()
     } else {
         cur_step++;
     }
-    pthread_mutex_unlock(&lock);
-}
-
-int
-msleep(unsigned long milliseconds)
-{
-    static struct timespec req, rem;
-    time_t sec = (int)(milliseconds / 1000);
-
-    milliseconds = milliseconds - (sec * 1000);
-    req.tv_sec = sec;
-    req.tv_nsec = milliseconds * 1000000;
-    while (nanosleep(&req, &rem) == -1)
-        continue;
-    return 1;
-}
-
-static void *
-loop_main(void *arg)
-{
-    while (true) {
-        loop();
-        msleep(1);            // 1ms = 0.001s = 1000000ns
-    }
-    return (void *)0;
 }
 
 int
 main(int argc, const char **argv)
 {
-    init_blocks();
+    ct_init_blocks();
+
     setlocale(LC_ALL, "C");
 
     /* initialize your non-curses data structures here */
@@ -583,20 +294,30 @@ main(int argc, const char **argv)
     if (signal(SIGINT, sig_handler) == SIG_ERR)
         error("signal error");
 
+    struct itimerval tout_val, ovalue;
+
+    /* 0.01s */
+    tout_val.it_interval.tv_usec = 10 * 1000;
+    tout_val.it_interval.tv_sec = 0;
+    tout_val.it_value.tv_usec = 10 * 1000;
+    tout_val.it_value.tv_sec = 0;
+    if (setitimer(ITIMER_REAL, &tout_val, &ovalue) < 0)
+        error("setitimer error");
+
+    if (signal(SIGALRM, loop_main) == SIG_ERR)
+        error("signal error");
+
     /* default window called strscr */
     mainwin = initscr();        /* initialize the curses library */
-
     cbreak();                   /* take input chars one at a time, no wait for \n */
     noecho();
     nodelay(mainwin, TRUE);
     nonl();                     /* tell curses not to do NL->CR/NL on output */
     keypad(mainwin, TRUE);      /* enable keyboard mapping (function key -> single value) */
-
     curs_set(0);                /* set cursor invisible */
 
     if (has_colors()) {
         start_color();
-
         /*
          * Simple color assignment, often all we need.  Color pair 0 cannot
          * be redefined.  This example uses the same value for the color
@@ -612,63 +333,50 @@ main(int argc, const char **argv)
         init_pair(7, COLOR_WHITE, COLOR_BLACK);
     }
 
-    leftwin = newwin(win_line * cell_y, win_cols * cell_x, 0, 0);
+    leftwin = newwin(win_line * cell_y + 1, win_cols * cell_x + 2, 0, 0);
     rightwin = newwin(win_line * cell_y, win_cols * cell_x, 0, (win_cols + 2) * cell_x);
     updateScore();
-
-    int err;
 
     // init
     cur_b = NULL;
     cur_y = cur_x = 0;
 
-    pthread_t loop_pid;
-
-    err = pthread_create(&loop_pid, NULL, loop_main, NULL);
-    if (err != 0) {
-        die("pthread %s creating failed.", "info_printer");
-    }
-
     for (;;) {
 
-        int c = wgetch(rightwin);       /* refresh, accept single keystroke of input */
-
-        pthread_mutex_lock(&lock);
+        int c = getch();
 
         /* process the command keystroke */
         switch (c) {
             case 'h':
                 if (check_shape(cur_b, cur_y, cur_x - 1)) {
                     cur_x--;
-                    cur_step = step + 100;
+                    cur_step = step;
                 }
                 break;
             case 'j':
                 if (check_shape(cur_b, cur_y + 2, cur_x)) {
                     cur_y += 2;
-                    cur_step = step + 100;
+                    cur_step = step;
                 }
                 break;
             case 'k':
-                shape++;
-                if (check_shape(get_block(type, shape), cur_y, cur_x)) {
-                    cur_b = get_block(type, shape);
-                    cur_step = step + 100;
+                cur_shape++;
+                if (check_shape(get_block(cur_type, cur_shape), cur_y, cur_x)) {
+                    cur_b = get_block(cur_type, cur_shape);
+                    cur_step = step;
                 } else {
-                    shape--;
+                    cur_shape--;
                 }
                 break;
             case 'l':
                 if (check_shape(cur_b, cur_y, cur_x + 1)) {
                     cur_x++;
-                    cur_step = step + 100;
+                    cur_step = step;
                 }
                 break;
             default:
                 break;
         }
-
-        pthread_mutex_unlock(&lock);
     }
 
     /* We're done */

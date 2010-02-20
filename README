@@ -8,3 +8,14 @@ Naming Convention:
 
 Docs:
     * http://en.wikipedia.org/wiki/tetris
+
+Language:
+    * c
+
+Library/API:
+    * ISO C99
+    * GNU C Library
+    * ncurses
+
+Build System:
+    * GNU Make

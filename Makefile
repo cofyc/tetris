@@ -8,10 +8,12 @@ CFLAGS = -std=c99 -g -O2 -Wall -D_POSIX_SOURCE -D_GNU_SOURCE
 LDFLAGS = -lncurses -lm -lpthread
 
 LIB_H += ctetris.h
+LIB_H += ct_blocks.h
 
 LIB_OBJS += ctetris.o
 LIB_OBJS += ct_usage.o
 LIB_OBJS += ct_wrapper.o
+LIB_OBJS += ct_blocks.o
 
 LIBS =
 
@@ -44,4 +46,3 @@ indent:
 
 tags:
 	ctags -R --c-kinds=+p --fields=+S .
-
