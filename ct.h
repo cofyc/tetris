@@ -1,5 +1,5 @@
-#ifndef CTETRIS_H
-#define CTETRIS_H
+#ifndef CT_H
+#define CT_H
 
 /* ISO C99 */
 #include <assert.h>

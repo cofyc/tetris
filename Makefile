@@ -4,33 +4,35 @@ all::
 CC = gcc
 RM = rm -f
 
-CFLAGS = -std=c99 -g -O2 -Wall -D_POSIX_SOURCE -D_GNU_SOURCE
+CFLAGS = -std=c99 -g -O2 -Wall 
 LDFLAGS = -lncurses -lm -lpthread
 
-LIB_H += ctetris.h
+LIB_H += ct.h
 LIB_H += ct_blocks.h
+LIB_H += ct_display.h
 
-LIB_OBJS += ctetris.o
+LIB_OBJS += ct.o
 LIB_OBJS += ct_usage.o
 LIB_OBJS += ct_wrapper.o
 LIB_OBJS += ct_blocks.o
+LIB_OBJS += ct_display.o
 
 LIBS =
 
 $(LIB_OBJS): $(LIB_H)
 
-ctetris: $(LIB_OBJS)
+ct: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
 
 .PHONY: all install clean indent tags
 
-all:: ctetris
+all:: ct
 
 install: all
-	install -m 755 ctetris /usr/local/bin/
+	install -m 755 ct /usr/local/bin/
 
 clean:
-	$(RM) ctetris
+	$(RM) ct
 	# indent backup files
 	$(RM) *~
 	# library objects

@@ -1,4 +1,4 @@
-#include "ctetris.h"
+#include "ct.h"
 
 void
 usage(const char *err)

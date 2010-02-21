@@ -2,12 +2,12 @@ CTetris:
 
     "CTetris" stands for C of Teteris
 
-Naming Convention:
-    Lowercase   Capitalization  Uppercase
-    ctetris     CTetris         CTETRIS 
-
 Docs:
     * http://en.wikipedia.org/wiki/tetris
+
+Program:
+    * binary file name: #1
+    * program name: #1
 
 Language:
     * c
@@ -19,3 +19,8 @@ Library/API:
 
 Build System:
     * GNU Make
+
+Naming Convention:
+    Num(#)  Lowercase   Capitalization  Uppercase
+    1       ctetris     CTetris         CTETRIS 
+    2       ct          CT              CT

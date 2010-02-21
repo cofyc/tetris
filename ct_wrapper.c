@@ -1,7 +1,7 @@
 /*
  * Various trival helper wrappers around standard functions
  */
-#include "ctetris.h"
+#include "ct.h"
 
 void *
 xmalloc(size_t size)
