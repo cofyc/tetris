@@ -1,18 +1,26 @@
-CTetris:
+Project:
+    * name: #2
+    * description: CTetris" stands for C of Teteris
 
-    "CTetris" stands for C of Teteris
-
-Docs:
+Project Doc:
     * http://en.wikipedia.org/wiki/tetris
 
 Program:
+    * name: #1
     * binary file name: #1
-    * program name: #1
+    * namespace prefix:
+        - Function: #1L
+        - Constant: #1U
+        - Variable: #1L
+    * namespace separator:
+        - Function: _
+        - Constant: _
+        - Variable: _
 
 Language:
     * c
 
-Library/API:
+Library:
     * ISO C99
     * GNU C Library
     * ncurses
@@ -21,6 +29,6 @@ Build System:
     * GNU Make
 
 Naming Convention:
-    Num(#)  Lowercase   Capitalization  Uppercase
-    1       ctetris     CTetris         CTETRIS 
-    2       ct          CT              CT
+    Num(#)  Lowercase(L)    Capitalization(C)   Uppercase(U)
+    1       ct              CT                  CT
+    2       ctetris         CTetris             CTETRIS 

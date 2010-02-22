@@ -14,13 +14,20 @@ struct block {
 #define XSTATUS_OF(cell)    ((cell) >> 7)
 
 extern struct block *cur_b, *prev_b;
+
 extern int cur_type, cur_shape;
+
 extern int cur_y, cur_x;
+
 extern int prev_type, prev_shape;
+
 extern unsigned int step;
+
 extern unsigned int cur_step;
 
 extern void ct_blocks_init();
+
 extern struct block *rand_block();
+
 extern struct block *get_block(int type, int shape);
 #endif

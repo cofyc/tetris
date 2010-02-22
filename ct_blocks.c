@@ -6,6 +6,7 @@ int cur_type = 0;
 int cur_shape = 0;
 int cur_x = 0;
 int cur_y = 0;
+
 int prev_type = 0;
 int prev_shape = 0;
 unsigned int step = 30;
@@ -208,10 +209,12 @@ get_block(int type, int shape)
 }
 
 static int
-ct_rand() {
+ct_rand()
+{
     static bool is_seeded = false;
+
     if (!is_seeded) {
-        srand(((long) (time(0) * getpid())));
+        srand(((long)(time(0) * getpid())));
         is_seeded = true;
     }
     return rand();

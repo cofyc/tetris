@@ -1,7 +1,7 @@
+#include "ct.h"
 /*
  * Various trival helper wrappers around standard functions
  */
-#include "ct.h"
 
 void *
 xmalloc(size_t size)

@@ -2,8 +2,6 @@
 #include "ct_blocks.h"
 #include "ct_display.h"
 
-
-
 static void
 sig_handler(int sig)
 {
@@ -12,6 +10,33 @@ sig_handler(int sig)
     exit(0);
 }
 
+void
+loop_main()
+{
+    if (cur_step >= step) {
+        if (cur_b) {
+            if (ct_display_check_shape(cur_b, cur_y + 1, cur_x)) {
+                cur_y++;
+                ct_display_move_block(cur_y, cur_x, cur_b);
+            } else {
+                ct_display_set_block(cur_y, cur_x, cur_b);
+                // new 
+                cur_b = rand_block();
+                cur_x = CT_SCREEN_X / 2 - 2;
+                cur_y = 0 - cur_b->y_min;
+                ct_display_move_block(cur_y, cur_x, cur_b);
+            }
+        } else {
+            cur_b = rand_block();
+            cur_x = CT_SCREEN_X / 2 - 2;
+            cur_y = 0 - cur_b->y_min;
+            ct_display_move_block(cur_y, cur_x, cur_b);
+        }
+        cur_step = 0;
+    } else {
+        cur_step++;
+    }
+}
 
 int
 main(int argc, const char **argv)
@@ -25,9 +50,11 @@ main(int argc, const char **argv)
     if (signal(SIGINT, sig_handler) == SIG_ERR)
         error("signal error");
 
-    struct itimerval tout_val, ovalue;
+    if (signal(SIGALRM, loop_main) == SIG_ERR)
+        error("signal error");
 
     /* 0.01s */
+    struct itimerval tout_val, ovalue;
     tout_val.it_interval.tv_usec = 10 * 1000;
     tout_val.it_interval.tv_sec = 0;
     tout_val.it_value.tv_usec = 10 * 1000;
@@ -35,37 +62,7 @@ main(int argc, const char **argv)
     if (setitimer(ITIMER_REAL, &tout_val, &ovalue) < 0)
         error("setitimer error");
 
-    if (signal(SIGALRM, loop_main) == SIG_ERR)
-        error("signal error");
-
-    /* default window called strscr */
-    mainwin = initscr();        /* initialize the curses library */
-    cbreak();                   /* take input chars one at a time, no wait for \n */
-    noecho();
-    nodelay(mainwin, TRUE);
-    nonl();                     /* tell curses not to do NL->CR/NL on output */
-    keypad(mainwin, TRUE);      /* enable keyboard mapping (function key -> single value) */
-    curs_set(0);                /* set cursor invisible */
-
-    if (has_colors()) {
-        start_color();
-        /*
-         * Simple color assignment, often all we need.  Color pair 0 cannot
-         * be redefined.  This example uses the same value for the color
-         * pair as for the foreground color, though of course that is not
-         * necessary:
-         */
-        init_pair(1, COLOR_RED, COLOR_BLACK);
-        init_pair(2, COLOR_GREEN, COLOR_BLACK);
-        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(4, COLOR_BLUE, COLOR_BLACK);
-        init_pair(5, COLOR_CYAN, COLOR_BLACK);
-        init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(7, COLOR_WHITE, COLOR_BLACK);
-    }
-
     ct_display_init();
-    updateScore();
 
     // init
     cur_b = NULL;
@@ -77,20 +74,20 @@ main(int argc, const char **argv)
         /* process the command keystroke */
         switch (c) {
             case 'h':
-                if (check_shape(cur_b, cur_y, cur_x - 1)) {
+                if (ct_display_check_shape(cur_b, cur_y, cur_x - 1)) {
                     cur_x--;
                     cur_step = step;
                 }
                 break;
             case 'j':
-                if (check_shape(cur_b, cur_y + 2, cur_x)) {
+                if (ct_display_check_shape(cur_b, cur_y + 2, cur_x)) {
                     cur_y += 2;
                     cur_step = step;
                 }
                 break;
             case 'k':
                 cur_shape++;
-                if (check_shape(get_block(cur_type, cur_shape), cur_y, cur_x)) {
+                if (ct_display_check_shape(get_block(cur_type, cur_shape), cur_y, cur_x)) {
                     cur_b = get_block(cur_type, cur_shape);
                     cur_step = step;
                 } else {
@@ -98,7 +95,7 @@ main(int argc, const char **argv)
                 }
                 break;
             case 'l':
-                if (check_shape(cur_b, cur_y, cur_x + 1)) {
+                if (ct_display_check_shape(cur_b, cur_y, cur_x + 1)) {
                     cur_x++;
                     cur_step = step;
                 }
