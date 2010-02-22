@@ -29,9 +29,9 @@ ct_display_init()
     mainwin = initscr();        /* initialize the curses library */
     cbreak();                   /* take input chars one at a time, no wait for \n */
     noecho();
-    nodelay(mainwin, TRUE);
+    nodelay(mainwin, false);    /* if false, then reads will block */
     nonl();                     /* tell curses not to do NL->CR/NL on output */
-    keypad(mainwin, TRUE);      /* enable keyboard mapping (function key -> single value) */
+    keypad(mainwin, true);      /* enable keyboard mapping (function key -> single value) */
     curs_set(0);                /* set cursor invisible */
 
     if (has_colors()) {

@@ -101,6 +101,7 @@ main(int argc, const char **argv)
                 }
                 break;
             default:
+                ct_log("here?");
                 break;
         }
     }
