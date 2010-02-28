@@ -15,23 +15,26 @@
 #define CT_SCREEN_CELL_X   2
 #define CT_SCREEN_CELL_Y   1
 
-WINDOW *mainwin, *leftwin;
+WINDOW *win_default, *win_screen;
 
 static int score = 0;
 
-static uchar ct_screen_buffer[CT_SCREEN_Y][CT_SCREEN_X];
-static uchar ct_screen_bg[CT_SCREEN_Y][CT_SCREEN_X];
+static char ct_screen_buffer[CT_SCREEN_Y][CT_SCREEN_X];
+static char ct_screen_bg[CT_SCREEN_Y][CT_SCREEN_X];
+
+static void ct_display_show_cell(int y, int x);
+static void ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x);
 
 int
 ct_display_init()
 {
     /* default window called strscr */
-    mainwin = initscr();        /* initialize the curses library */
+    win_default = initscr();        /* initialize the curses library */
     cbreak();                   /* take input chars one at a time, no wait for \n */
     noecho();
-    nodelay(mainwin, false);    /* if false, then reads will block */
+    nodelay(win_default, false);    /* if false, then reads will block */
     nonl();                     /* tell curses not to do NL->CR/NL on output */
-    keypad(mainwin, true);      /* enable keyboard mapping (function key -> single value) */
+    keypad(win_default, true);      /* enable keyboard mapping (function key -> single value) */
     curs_set(0);                /* set cursor invisible */
 
     if (has_colors()) {
@@ -51,59 +54,55 @@ ct_display_init()
         init_pair(7, COLOR_WHITE, COLOR_BLACK);
     }
 
-    leftwin =
-        newwin((CT_SCREEN_Y + 1) * CT_SCREEN_CELL_Y, (CT_SCREEN_X + 1) * CT_SCREEN_CELL_X, 0, 0);
+    win_screen = newwin(CT_SCREEN_Y * CT_SCREEN_CELL_Y, CT_SCREEN_X * CT_SCREEN_CELL_X, 0, 0);
+
+    // borders
+    int i, j;
+    wattrset(win_screen, COLOR_PAIR(7 % 8));
+    for (i = CT_SCREEN_Y; i < CT_SCREEN_Y + 1; i++) {
+        for (j = 0; j < CT_SCREEN_X + 1; j++) {
+            mvwaddch(win_default, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X, '[');
+            mvwaddch(win_default, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X + 1, ']');
+        }
+    }
+    for (i = 0; i < CT_SCREEN_Y + 1; i++) {
+        for (j = CT_SCREEN_X; j < CT_SCREEN_X + 1; j++) {
+            mvwaddch(win_default, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X, '[');
+            mvwaddch(win_default, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X + 1, ']');
+        }
+    }
+
     return 0;
 }
 
-void
+static void
 ct_display_show_cell(int y, int x)
 {
-    // check confine
+    // check
     if (y < 0 || y >= CT_SCREEN_Y) {
-        ct_log("y reach out of confine");
+        ct_debug_log("y reach out of screen");
     } else if (x < 0 || x >= CT_SCREEN_X) {
-        ct_log("x reach out of confine");
+        ct_debug_log("x reach out of screen");
     }
 
-    uchar cell = ct_screen_buffer[y][x];
-    wattrset(leftwin, COLOR_PAIR(XCOLOR_OF(cell) % 8));
+    char cell = ct_screen_buffer[y][x];
+    wattrset(win_screen, COLOR_PAIR(XCOLOR_OF(cell) % 8));
 
     if (XSTATUS_OF(cell)) {
-        mvwaddch(leftwin, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, '[');
-        mvwaddch(leftwin, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ']');
+        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, '[');
+        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ']');
     } else {
-        mvwaddch(leftwin, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, ' ');
-        mvwaddch(leftwin, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ' ');
+        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, ' ');
+        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ' ');
     }
 }
 
-void
+static void
 ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
 {
     int i, j;
 
     struct block *b = cur_b;
-
-    static bool ok = false;
-    if (!ok) {
-        // main block
-        wattrset(leftwin, COLOR_PAIR(7 % 8));
-        for (i = CT_SCREEN_Y; i < CT_SCREEN_Y + 1; i++) {
-            for (j = 0; j < CT_SCREEN_X + 1; j++) {
-                mvwaddch(leftwin, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X, '[');
-                mvwaddch(leftwin, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X + 1, ']');
-            }
-        }
-        for (i = 0; i < CT_SCREEN_Y + 1; i++) {
-            for (j = CT_SCREEN_X; j < CT_SCREEN_X + 1; j++) {
-                mvwaddch(leftwin, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X, '[');
-                mvwaddch(leftwin, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X + 1, ']');
-            }
-        }
-        wrefresh(leftwin);
-        ok = true;
-    }
 
     // cur bg
     for (i = 0; i < CT_SCREEN_Y; i++) {
@@ -128,7 +127,7 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
         }
     }
 
-    wrefresh(leftwin);
+    wrefresh(win_screen);
 }
 
 void
@@ -169,18 +168,18 @@ ct_display_set_block(int y, int x, struct block *b)
         continue;
     }
 
-
     // erase lines
     int _i;
     for (i = 0; i < erased_num; i++) {
         for (_i = erased_lines[i]; _i >= 0 && _i < CT_SCREEN_Y; _i--) {
             for (j = 0; j < CT_SCREEN_X; j++) {
                 if ((_i - 1) < 0) {
-                    ct_log("line %d to line %d, but use blank line as line %d ", _i - 1, _i, _i - 1);
+                    ct_debug_log("line %d to line %d, but use blank line as line %d ", _i - 1, _i,
+                                 _i - 1);
                     // out of screen, use blank line
                     ct_screen_bg[_i][j] = 0;
                 } else {
-                    ct_log("line %d to line %d", _i - 1, _i);
+                    ct_debug_log("line %d to line %d", _i - 1, _i);
                     ct_screen_bg[_i][j] = ct_screen_bg[_i - 1][j];
                 }
             }

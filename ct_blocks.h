@@ -3,7 +3,7 @@
 #include "ct.h"
 
 struct block {
-    uchar show[4][4];
+    char show[4][4];
     int x_min;
     int x_max;
     int y_min;

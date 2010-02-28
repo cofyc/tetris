@@ -17,9 +17,6 @@
 #include <math.h>
 #include <time.h>
 
-/* Ncurses */
-#include <ncurses.h>
-
 /* Others */
 #include <unistd.h>
 #include <sys/types.h>
@@ -31,8 +28,5 @@
 
 /* CT Basic Libraries */
 #include "ct_debug.h"
-
-typedef unsigned int uint;
-typedef unsigned char uchar;
 
 #endif

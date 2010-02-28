@@ -38,14 +38,22 @@ loop_main()
     }
 }
 
+/*
+ * Setup to use the current locale (for ctype() and many other things).
+ */
+static void
+init_locale()
+{
+    setlocale(LC_ALL, "");
+}
+
 int
 main(int argc, const char **argv)
 {
+    init_locale();
     ct_blocks_init();
-
-    setlocale(LC_ALL, "C");
-
-    /* initialize your non-curses data structures here */
+    ct_display_init();
+    ct_debug_init();
 
     if (signal(SIGINT, sig_handler) == SIG_ERR)
         error("signal error");
@@ -62,16 +70,10 @@ main(int argc, const char **argv)
     if (setitimer(ITIMER_REAL, &tout_val, &ovalue) < 0)
         error("setitimer error");
 
-    ct_display_init();
-
-    // init
-    cur_b = NULL;
-    cur_y = cur_x = 0;
-
+    /* process the command keystroke */
     for (;;) {
         int c = getch();
 
-        /* process the command keystroke */
         switch (c) {
             case 'h':
                 if (ct_display_check_shape(cur_b, cur_y, cur_x - 1)) {
@@ -101,7 +103,7 @@ main(int argc, const char **argv)
                 }
                 break;
             default:
-                ct_log("here?");
+                ct_debug_log("here?");
                 break;
         }
     }
