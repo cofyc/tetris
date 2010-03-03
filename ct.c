@@ -1,65 +1,18 @@
 #include "ct.h"
 #include "ct_blocks.h"
 #include "ct_display.h"
+#include "ct_debug.h"
+#include "ct_game.h"
 
-static void
-sig_handler(int sig)
-{
-    endwin();
-    /* do your non-curses wrapup here */
-    exit(0);
-}
-
-void
-loop_main()
-{
-    if (cur_step >= step) {
-        if (cur_b) {
-            if (ct_display_check_shape(cur_b, cur_y + 1, cur_x)) {
-                cur_y++;
-                ct_display_move_block(cur_y, cur_x, cur_b);
-            } else {
-                ct_display_set_block(cur_y, cur_x, cur_b);
-                // new 
-                cur_b = rand_block();
-                cur_x = CT_SCREEN_X / 2 - 2;
-                cur_y = 0 - cur_b->y_min;
-                ct_display_move_block(cur_y, cur_x, cur_b);
-            }
-        } else {
-            cur_b = rand_block();
-            cur_x = CT_SCREEN_X / 2 - 2;
-            cur_y = 0 - cur_b->y_min;
-            ct_display_move_block(cur_y, cur_x, cur_b);
-        }
-        cur_step = 0;
-    } else {
-        cur_step++;
-    }
-}
-
-/*
- * Setup to use the current locale (for ctype() and many other things).
- */
-static void
-init_locale()
-{
-    setlocale(LC_ALL, "");
-}
 
 int
 main(int argc, const char **argv)
 {
-    init_locale();
+    setlocale(LC_ALL, "");
     ct_blocks_init();
     ct_display_init();
     ct_debug_init();
-
-    if (signal(SIGINT, sig_handler) == SIG_ERR)
-        error("signal error");
-
-    if (signal(SIGALRM, loop_main) == SIG_ERR)
-        error("signal error");
+    ct_game_init();
 
     /* 0.01s */
     struct itimerval tout_val, ovalue;
@@ -70,41 +23,9 @@ main(int argc, const char **argv)
     if (setitimer(ITIMER_REAL, &tout_val, &ovalue) < 0)
         error("setitimer error");
 
-    /* process the command keystroke */
-    for (;;) {
-        int c = getch();
+    if (signal(SIGALRM, ct_game_daemon) == SIG_ERR)
+        error("signal error");
 
-        switch (c) {
-            case 'h':
-                if (ct_display_check_shape(cur_b, cur_y, cur_x - 1)) {
-                    cur_x--;
-                    cur_step = step;
-                }
-                break;
-            case 'j':
-                if (ct_display_check_shape(cur_b, cur_y + 2, cur_x)) {
-                    cur_y += 2;
-                    cur_step = step;
-                }
-                break;
-            case 'k':
-                cur_shape++;
-                if (ct_display_check_shape(get_block(cur_type, cur_shape), cur_y, cur_x)) {
-                    cur_b = get_block(cur_type, cur_shape);
-                    cur_step = step;
-                } else {
-                    cur_shape--;
-                }
-                break;
-            case 'l':
-                if (ct_display_check_shape(cur_b, cur_y, cur_x + 1)) {
-                    cur_x++;
-                    cur_step = step;
-                }
-                break;
-            default:
-                ct_debug_log("here?");
-                break;
-        }
-    }
+    ct_game_main();
+
 }

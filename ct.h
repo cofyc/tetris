@@ -1,6 +1,8 @@
 #ifndef CT_H
 #define CT_H
 
+#define _GNU_SOURCE
+
 /* ISO C99 */
 #include <assert.h>
 #include <ctype.h>
@@ -25,8 +27,5 @@
 /* Basic Libraries */
 #include "wrapper.h"
 #include "usage.h"
-
-/* CT Basic Libraries */
-#include "ct_debug.h"
 
 #endif

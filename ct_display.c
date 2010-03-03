@@ -1,4 +1,5 @@
 #include "ct_display.h"
+#include "ct_debug.h"
 
 /**
  *

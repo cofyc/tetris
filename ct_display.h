@@ -2,6 +2,7 @@
 #define CT_DISPLAY_H
 
 #include <ncurses.h>
+
 #include "ct.h"
 #include "ct_blocks.h"
 
