@@ -4,7 +4,6 @@
 #include "ct_debug.h"
 #include "ct_game.h"
 
-
 int
 main(int argc, const char **argv)
 {

@@ -27,6 +27,8 @@ Library:
 
 Build System:
     * GNU Make
+    * GNU Gcc
+    * GNU Coreutils
 
 Architecture:
     ct

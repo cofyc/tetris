@@ -4,8 +4,17 @@
 #include "ct_debug.h"
 
 void
-ct_game_init() {
+ct_game_init()
+{
 
+}
+
+void
+ct_game_end()
+{
+    ct_display_end();
+    printf("You lose.\n");
+    exit(0);
 }
 
 void
@@ -17,7 +26,9 @@ ct_game_daemon()
                 cur_y++;
                 ct_display_move_block(cur_y, cur_x, cur_b);
             } else {
-                ct_display_set_block(cur_y, cur_x, cur_b);
+                if (ct_display_set_block(cur_y, cur_x, cur_b)) {
+                    ct_game_end();
+                }
                 // new 
                 cur_b = rand_block();
                 cur_x = CT_SCREEN_X / 2 - 2;
@@ -25,6 +36,7 @@ ct_game_daemon()
                 ct_display_move_block(cur_y, cur_x, cur_b);
             }
         } else {
+            // new
             cur_b = rand_block();
             cur_x = CT_SCREEN_X / 2 - 2;
             cur_y = 0 - cur_b->y_min;
@@ -36,7 +48,7 @@ ct_game_daemon()
     }
 }
 
-void 
+void
 ct_game_main()
 {
     for (;;) {

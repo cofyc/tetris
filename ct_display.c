@@ -25,17 +25,18 @@ static char ct_screen_bg[CT_SCREEN_Y][CT_SCREEN_X];
 
 static void ct_display_show_cell(int y, int x);
 static void ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x);
+static void ct_display_update_sidebar();
 
 int
 ct_display_init()
 {
     /* default window called strscr */
-    win_default = initscr();        /* initialize the curses library */
+    win_default = initscr();    /* initialize the curses library, return pointer to stdscr */
     cbreak();                   /* take input chars one at a time, no wait for \n */
     noecho();
-    nodelay(win_default, false);    /* if false, then reads will block */
+    nodelay(win_default, false);        /* if false, then reads will block */
     nonl();                     /* tell curses not to do NL->CR/NL on output */
-    keypad(win_default, true);      /* enable keyboard mapping (function key -> single value) */
+    keypad(win_default, true);  /* enable keyboard mapping (function key -> single value) */
     curs_set(0);                /* set cursor invisible */
 
     if (has_colors()) {
@@ -72,8 +73,22 @@ ct_display_init()
             mvwaddch(win_default, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X + 1, ']');
         }
     }
+    wrefresh(win_default);
+
+    // sidebar info
+    ct_display_update_sidebar();
 
     return 0;
+}
+
+static void
+ct_display_update_sidebar()
+{
+    mvwprintw(win_default, 2, CT_SCREEN_X * 2 + 4, "score: %d", score);
+    mvwprintw(win_default, 4, CT_SCREEN_X * 2 + 4, "change: k");
+    mvwprintw(win_default, 6, CT_SCREEN_X * 2 + 4, "left: h right: l");
+    mvwprintw(win_default, 5, CT_SCREEN_X * 2 + 4, "down: j");
+    wrefresh(win_default);
 }
 
 static void
@@ -131,14 +146,14 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     wrefresh(win_screen);
 }
 
-void
+int
 ct_display_set_block(int y, int x, struct block *b)
 {
     int i, j;
 
     if (y <= 0) {
         // lose game
-        exit(-1);
+        return -1;
     }
 
     for (i = b->y_min; i <= b->y_max; i++) {
@@ -207,10 +222,13 @@ ct_display_set_block(int y, int x, struct block *b)
             break;
     }
 
+    ct_display_update_sidebar();
+
+    return 0;
 }
 
 bool
-ct_display_check_shape(struct block *b, int y, int x)
+ct_display_check_shape(struct block * b, int y, int x)
 {
     // bg blocks
     if (x + b->x_min < 0) {
@@ -263,4 +281,10 @@ ct_display_move_block(int y, int x, struct block *b)
     _x = x;
 
     ct_display_update(top_y, btm_y, lft_x, rgt_x);
+}
+
+void
+ct_display_end()
+{
+    endwin();
 }
