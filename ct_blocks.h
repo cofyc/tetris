@@ -13,17 +13,13 @@ struct block {
 #define XCOLOR_OF(cell)     ((cell) & 0x0F)
 #define XSTATUS_OF(cell)    ((cell) >> 7)
 
-extern struct block *cur_b, *prev_b;
+extern struct block *cur_b, *next_b;
 
 extern int cur_type, cur_shape;
 
 extern int cur_y, cur_x;
 
-extern int prev_type, prev_shape;
-
-extern unsigned int step;
-
-extern unsigned int cur_step;
+extern int next_type, next_shape;
 
 extern void ct_blocks_init();
 

@@ -84,10 +84,11 @@ ct_display_init()
 static void
 ct_display_update_sidebar()
 {
-    mvwprintw(win_default, 2, CT_SCREEN_X * 2 + 4, "score: %d", score);
-    mvwprintw(win_default, 4, CT_SCREEN_X * 2 + 4, "change: k");
-    mvwprintw(win_default, 6, CT_SCREEN_X * 2 + 4, "left: h right: l");
-    mvwprintw(win_default, 5, CT_SCREEN_X * 2 + 4, "down: j");
+    mvwprintw(win_default, 5, CT_SCREEN_X * 2 + 4, "score: %d", score);
+    mvwprintw(win_default, 7, CT_SCREEN_X * 2 + 4, "change: k");
+    mvwprintw(win_default, 8, CT_SCREEN_X * 2 + 4, "left: h right: l");
+    mvwprintw(win_default, 9, CT_SCREEN_X * 2 + 4, "down: j");
+    mvwprintw(win_default, 9, CT_SCREEN_X * 2 + 4, "fast down: [space]");
     wrefresh(win_default);
 }
 

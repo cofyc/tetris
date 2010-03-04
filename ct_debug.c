@@ -2,6 +2,7 @@
 
 #define CT_LOG_FILENAME "ct.log"
 
+static bool ct_debug_is_on = false;
 static FILE *ct_debug_logfile = NULL;
 
 void
@@ -11,11 +12,17 @@ ct_debug_init()
     if (!ct_debug_logfile) {
         die("ct_debug init failed.");
     }
+
+    ct_debug_is_on = true;
 }
 
 void
 ct_debug_log(const char *fmt, ...)
 {
+    if (!ct_debug_is_on) {
+        return;
+    }
+
     char msg[4096];
 
     va_list params;

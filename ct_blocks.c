@@ -1,16 +1,16 @@
 #include "ct_blocks.h"
 
-struct block *cur_b = NULL;
-struct block *prev_b = NULL;
-int cur_type = 0;
-int cur_shape = 0;
 int cur_x = 0;
 int cur_y = 0;
 
-int prev_type = 0;
-int prev_shape = 0;
-unsigned int step = 30;
-unsigned int cur_step = 0;
+struct block *cur_b = NULL;
+int cur_type = 0;
+int cur_shape = 0;
+
+struct block *next_b = NULL;
+int next_type = 0;
+int next_shape = 0;
+
 
 struct block blocks[7][4] = {
     /*

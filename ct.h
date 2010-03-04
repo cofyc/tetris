@@ -20,8 +20,7 @@
 #include <time.h>
 
 /* Others */
-#include <unistd.h>
-#include <sys/types.h>
+#include <getopt.h>
 #include <sys/time.h>
 
 /* Basic Libraries */

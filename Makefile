@@ -45,7 +45,7 @@ clean:
 	$(RM) $(LIB_OBJS)
 
 indent:
-	# try to find out all typenames defined by 'typedef' of c
+	# try to find out all typenames defined by 'typedef'
 	test -e ~/.indent.pro && cp ~/.indent.pro .indent.pro
 	sed -n 's/.*typedef\s.*\s\([a-zA-Z_]\+\);/\1/p' *.[ch] | xargs \
 		-Itype echo -T type >> .indent.pro
