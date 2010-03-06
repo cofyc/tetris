@@ -2,7 +2,7 @@
 
 #define CT_LOG_FILENAME "ct.log"
 
-static bool ct_debug_is_on = false;
+static int ct_debug_is_on = 0;
 static FILE *ct_debug_logfile = NULL;
 
 void
@@ -13,7 +13,7 @@ ct_debug_init()
         die("ct_debug init failed.");
     }
 
-    ct_debug_is_on = true;
+    ct_debug_is_on = 1;
 }
 
 void

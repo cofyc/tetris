@@ -8,7 +8,7 @@ CFLAGS = -std=c99 -g -O2 -Wall
 LDFLAGS = -lncurses
 
 LIB_H += ct.h
-LIB_H += ct_blocks.h
+LIB_H += ct_block.h
 LIB_H += ct_debug.h
 LIB_H += ct_display.h
 LIB_H += ct_game.h
@@ -16,7 +16,7 @@ LIB_H += usage.h
 LIB_H += wrapper.h
 
 LIB_OBJS += ct.o
-LIB_OBJS += ct_blocks.o
+LIB_OBJS += ct_block.o
 LIB_OBJS += ct_debug.o
 LIB_OBJS += ct_display.o
 LIB_OBJS += ct_game.o

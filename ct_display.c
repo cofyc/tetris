@@ -16,6 +16,9 @@
 #define CT_SCREEN_CELL_X   2
 #define CT_SCREEN_CELL_Y   1
 
+#define XCOLOR_OF(cell)     ((cell) & 0x0F)
+#define XSTATUS_OF(cell)    ((cell) >> 7)
+
 WINDOW *win_default, *win_screen;
 
 static int score = 0;
@@ -75,6 +78,13 @@ ct_display_init()
     }
     wrefresh(win_default);
 
+    // bg
+    for (i = 0; i < CT_SCREEN_Y; i++) {
+        for (j = 0; j < CT_SCREEN_X; j++) {
+            ct_screen_buffer[i][j] = 0;
+        }
+    }
+
     // sidebar info
     ct_display_update_sidebar();
 
@@ -103,8 +113,11 @@ ct_display_show_cell(int y, int x)
     }
 
     char cell = ct_screen_buffer[y][x];
+
+    // color
     wattrset(win_screen, COLOR_PAIR(XCOLOR_OF(cell) % 8));
 
+    // show
     if (XSTATUS_OF(cell)) {
         mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, '[');
         mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ']');
@@ -122,8 +135,8 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     struct block *b = cur_b;
 
     // cur bg
-    for (i = 0; i < CT_SCREEN_Y; i++) {
-        for (j = 0; j < CT_SCREEN_X; j++) {
+    for (i = top_y; i <= btm_y; i++) {
+        for (j = lft_x; j <= rgt_x; j++) {
             ct_screen_buffer[i][j] = ct_screen_bg[i][j];
         }
     }
@@ -154,9 +167,10 @@ ct_display_set_block(int y, int x, struct block *b)
 
     if (y <= 0) {
         // lose game
-        return -1;
+        return 1;
     }
 
+    // set block into bg
     for (i = b->y_min; i <= b->y_max; i++) {
         for (j = b->x_min; j <= b->x_max; j++) {
             if (XSTATUS_OF(b->show[i][j])) {
@@ -164,7 +178,9 @@ ct_display_set_block(int y, int x, struct block *b)
             }
         }
     }
+    ct_display_update(0, CT_SCREEN_Y - 1, 0, CT_SCREEN_X - 1);
 
+    // 
     int erased_num = 0;
     int erased_lines[4] = { -1, -1, -1, -1 };
     for (i = y + b->y_min; i <= y + b->y_max; i++) {
@@ -199,12 +215,12 @@ ct_display_set_block(int y, int x, struct block *b)
                     ct_debug_log("line %d to line %d", _i - 1, _i);
                     ct_screen_bg[_i][j] = ct_screen_bg[_i - 1][j];
                 }
+
+                ct_display_update(_i, CT_SCREEN_Y - 1, j, CT_SCREEN_X - 1);
+                ct_display_update(_i - 1, CT_SCREEN_Y - 1, j, CT_SCREEN_X - 1);
             }
         }
     }
-
-    // redisplay all screen
-    ct_display_update(0, CT_SCREEN_Y - 1, 0, CT_SCREEN_X - 1);
 
     switch (erased_num) {
         case 1:
@@ -228,29 +244,30 @@ ct_display_set_block(int y, int x, struct block *b)
     return 0;
 }
 
-bool
+int
 ct_display_check_shape(struct block * b, int y, int x)
 {
-    // bg blocks
+    // bg block
     if (x + b->x_min < 0) {
-        return false;
+        return 1;
     } else if (x + b->x_max >= CT_SCREEN_X) {
-        return false;
+        return 2;
     } else if (y + b->y_min < 0) {
-        return false;
+        return 3;
     } else if (y + b->y_max >= CT_SCREEN_Y) {
-        return false;
+        return 4;
     } else {
 
         int i, j;
         for (i = b->y_min; i <= b->y_max; i++) {
             for (j = b->x_min; j <= b->x_max; j++) {
                 if (XSTATUS_OF(b->show[i][j]) && XSTATUS_OF(ct_screen_bg[y + i][x + j])) {
-                    return false;
+                    return 5;
                 }
             }
         }
-        return true;
+
+        return 0;
     }
 }
 

@@ -10,20 +10,12 @@ struct block {
     int y_max;
 };
 
-#define XCOLOR_OF(cell)     ((cell) & 0x0F)
-#define XSTATUS_OF(cell)    ((cell) >> 7)
-
 extern struct block *cur_b, *next_b;
-
 extern int cur_type, cur_shape;
-
 extern int cur_y, cur_x;
-
 extern int next_type, next_shape;
+extern void ct_block_init();
+extern struct block *ct_block_rand();
+extern struct block *ct_block_get(int type, int shape);
 
-extern void ct_blocks_init();
-
-extern struct block *rand_block();
-
-extern struct block *get_block(int type, int shape);
 #endif

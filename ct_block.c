@@ -1,4 +1,4 @@
-#include "ct_blocks.h"
+#include "ct_block.h"
 
 int cur_x = 0;
 int cur_y = 0;
@@ -11,8 +11,7 @@ struct block *next_b = NULL;
 int next_type = 0;
 int next_shape = 0;
 
-
-struct block blocks[7][4] = {
+struct block block[7][4] = {
     /*
      * ----------
      * |        |
@@ -29,11 +28,10 @@ struct block blocks[7][4] = {
        {0, 0x81, 0x81, 0},
        {0, 0, 0, 0}
        },
-      1,
-      2,
-      1,
-      2},
-     // 
+      1,                        // x_min
+      2,                        // x_max
+      1,                        // y_min
+      2},                       // y_max
      },
     /*
      * ----------
@@ -167,7 +165,7 @@ struct block blocks[7][4] = {
 
 /**
  *
- * 90" clockwise rotation
+ * 90" clockwise rotator
  *
  * y axis -> x axis
  * x axis -> reverse of x axis
@@ -184,46 +182,48 @@ rotate_block(struct block *to, struct block *from)
     }
 
     to->x_min = 4 - 1 - from->y_max;
+
     to->x_max = 4 - 1 - from->y_min;
     to->y_min = from->x_min;
     to->y_max = from->x_max;
 }
 
 void
-ct_blocks_init()
+ct_block_init()
 {
     int i, j;
 
     for (i = 0; i < 7; i++) {
         for (j = 1; j < 4; j++) {
-            rotate_block(&blocks[i][j], &blocks[i][j - 1]);
+            rotate_block(&block[i][j], &block[i][j - 1]);
         }
     }
 
 }
 
 struct block *
-get_block(int type, int shape)
+ct_block_get(int type, int shape)
 {
-    return &blocks[type % 7][shape % 4];
+    return &block[type % 7][shape % 4];
 }
 
 static int
 ct_rand()
 {
-    static bool is_seeded = false;
+    static int is_seeded = 0;
 
     if (!is_seeded) {
         srand(((long)(time(0) * getpid())));
-        is_seeded = true;
+        is_seeded = 1;
     }
+
     return rand();
 }
 
 struct block *
-rand_block()
+ct_block_rand()
 {
     cur_shape = ct_rand();
     cur_type = ct_rand();
-    return get_block(cur_type, cur_shape);
+    return ct_block_get(cur_type, cur_shape);
 }
