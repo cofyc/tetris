@@ -169,7 +169,6 @@ ct_display_set_block(int y, int x, struct block *b)
         // lose game
         return 1;
     }
-
     // set block into bg
     for (i = b->y_min; i <= b->y_max; i++) {
         for (j = b->x_min; j <= b->x_max; j++) {
@@ -245,7 +244,7 @@ ct_display_set_block(int y, int x, struct block *b)
 }
 
 int
-ct_display_check_shape(struct block * b, int y, int x)
+ct_display_check_shape(struct block *b, int y, int x)
 {
     // bg block
     if (x + b->x_min < 0) {

@@ -21,24 +21,30 @@ Language:
     * c
 
 Library:
-    * ISO C99
-    * GNU C Library
-    * ncurses
+    * Standard 
+        - ISO C
+        - POSIX
+        - BSD
+        - GNU Extensions
+        - ...
+    * Non-Standard
+        - ncurses
 
 Build System:
     * GNU Make
     * GNU Gcc
     * GNU Coreutils
+    * GNU Indent
+    * splint
+    * git
 
 Architecture:
     ct
     ct modules
         * relations between modules
-            * coordination: implemantion base on
-            * subordination/superordination: declaration base or is based on
+            * coordination
+            * subordination/superordination: implemantion/declaration base on or is based on
     ct libraries
-        * system-domain
-        * user-domain
 
 Naming Convention:
     Num(#)  Lowercase(L)    Capitalization(C)   Uppercase(U)

@@ -1,4 +1,4 @@
 
 Installation
     $ make          # build
-    $ make install  # install as root
+    $ make install  # as root

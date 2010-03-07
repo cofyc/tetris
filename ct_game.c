@@ -22,7 +22,8 @@ ct_game_end()
 }
 
 static void
-ct_game_block_new() {
+ct_game_block_new()
+{
     // new 
     cur_b = ct_block_rand();
     cur_x = CT_SCREEN_X / 2 - 2;
@@ -31,7 +32,8 @@ ct_game_block_new() {
 }
 
 static int
-ct_game_block_down() {
+ct_game_block_down()
+{
     int status = ct_display_check_shape(cur_b, cur_y + 1, cur_x);
     if (!status) {
         cur_y++;
@@ -41,7 +43,8 @@ ct_game_block_down() {
 }
 
 static int
-ct_game_block_left() {
+ct_game_block_left()
+{
     int status = ct_display_check_shape(cur_b, cur_y, cur_x - 1);
     if (!status) {
         cur_x--;
@@ -51,7 +54,8 @@ ct_game_block_left() {
 }
 
 static int
-ct_game_block_right() {
+ct_game_block_right()
+{
     int status = ct_display_check_shape(cur_b, cur_y, cur_x + 1);
     if (!status) {
         cur_x++;
@@ -61,7 +65,8 @@ ct_game_block_right() {
 }
 
 static int
-ct_game_block_change() {
+ct_game_block_change()
+{
     int status = ct_display_check_shape(ct_block_get(cur_type, cur_shape + 1), cur_y, cur_x);
     if (!status) {
         cur_shape++;
@@ -72,7 +77,8 @@ ct_game_block_change() {
 }
 
 void
-ct_game_daemon() {
+ct_game_daemon()
+{
     int status = ct_game_block_down();
     if (status) {
         if (!ct_display_set_block(cur_y, cur_x, cur_b)) {

@@ -2,18 +2,19 @@
 
 #define CT_LOG_FILENAME "ct.log"
 
-static int ct_debug_is_on = 0;
+static bool ct_debug_is_on = false;
 static FILE *ct_debug_logfile = NULL;
 
 void
 ct_debug_init()
 {
     ct_debug_logfile = fopen(CT_LOG_FILENAME, "a+");
+
     if (!ct_debug_logfile) {
         die("ct_debug init failed.");
     }
 
-    ct_debug_is_on = 1;
+    ct_debug_is_on = true;
 }
 
 void

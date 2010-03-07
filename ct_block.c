@@ -210,11 +210,11 @@ ct_block_get(int type, int shape)
 static int
 ct_rand()
 {
-    static int is_seeded = 0;
+    static int is_seeded = false;
 
     if (!is_seeded) {
         srand(((long)(time(0) * getpid())));
-        is_seeded = 1;
+        is_seeded = true;
     }
 
     return rand();
