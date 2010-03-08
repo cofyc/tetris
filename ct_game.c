@@ -3,14 +3,12 @@
 #include "ct_display.h"
 #include "ct_debug.h"
 
+static void ct_game_block_new();
+
 void
 ct_game_init()
 {
-    // new cur_b
-    cur_b = ct_block_rand();
-    cur_x = CT_SCREEN_X / 2 - 2;
-    cur_y = 0 - cur_b->y_min;
-    ct_display_move_block(cur_y, cur_x, cur_b);
+    ct_game_block_new();
 }
 
 void
@@ -24,11 +22,25 @@ ct_game_end()
 static void
 ct_game_block_new()
 {
-    // new 
-    cur_b = ct_block_rand();
+    if (!next_b) {
+        next_type = ct_rand() % 7;
+        next_shape = ct_rand() % 4;
+        next_b = ct_block_get(next_type, next_shape);
+    }
+
+    cur_b = next_b;
+    cur_type = next_type;
+    cur_shape = next_shape;
+
+    next_type = ct_rand() % 7;
+    next_shape = ct_rand() % 4;
+    next_b = ct_block_get(next_type, next_shape);
+
     cur_x = CT_SCREEN_X / 2 - 2;
     cur_y = 0;
+
     ct_display_move_block(cur_y, cur_x, cur_b);
+    ct_display_update_sidebar();
 }
 
 static int
@@ -67,9 +79,10 @@ ct_game_block_right()
 static int
 ct_game_block_change()
 {
-    int status = ct_display_check_shape(ct_block_get(cur_type, cur_shape + 1), cur_y, cur_x);
+    int status = ct_display_check_shape(ct_block_get(cur_type, (cur_shape + 1) % 4), cur_y, cur_x);
     if (!status) {
         cur_shape++;
+        cur_shape = cur_shape % 4;
         cur_b = ct_block_get(cur_type, cur_shape);
         ct_display_move_block(cur_y, cur_x, cur_b);
     }

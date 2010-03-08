@@ -19,16 +19,21 @@
 #define XCOLOR_OF(cell)     ((cell) & 0x0F)
 #define XSTATUS_OF(cell)    ((cell) >> 7)
 
-WINDOW *win_default, *win_screen;
+WINDOW *win_default, *win_screen, *win_sidebar;
 
 static int score = 0;
+
+struct ct_window {
+    WINDOW *win;
+    int x;
+    int y;
+};
 
 static char ct_screen_buffer[CT_SCREEN_Y][CT_SCREEN_X];
 static char ct_screen_bg[CT_SCREEN_Y][CT_SCREEN_X];
 
-static void ct_display_show_cell(int y, int x);
+static void ct_display_show_cell(WINDOW *win, int win_y, int win_x, int y, int x, char cell);
 static void ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x);
-static void ct_display_update_sidebar();
 
 int
 ct_display_init()
@@ -40,6 +45,7 @@ ct_display_init()
     nodelay(win_default, false);        /* if false, then reads will block */
     nonl();                     /* tell curses not to do NL->CR/NL on output */
     keypad(win_default, true);  /* enable keyboard mapping (function key -> single value) */
+    // mac os x terminal don't support this currently
     curs_set(0);                /* set cursor invisible */
 
     if (has_colors()) {
@@ -63,7 +69,7 @@ ct_display_init()
 
     // borders
     int i, j;
-    wattrset(win_screen, COLOR_PAIR(7 % 8));
+    wattrset(win_default, COLOR_PAIR(7 % 8));
     for (i = CT_SCREEN_Y; i < CT_SCREEN_Y + 1; i++) {
         for (j = 0; j < CT_SCREEN_X + 1; j++) {
             mvwaddch(win_default, i * CT_SCREEN_CELL_Y, j * CT_SCREEN_CELL_X, '[');
@@ -86,44 +92,56 @@ ct_display_init()
     }
 
     // sidebar info
+    win_sidebar = newwin(CT_SIDEBAR_Y * CT_SCREEN_CELL_Y, CT_SIDEBAR_X * CT_SCREEN_CELL_X, 0, (CT_SCREEN_X + 1) * CT_SCREEN_CELL_X);
     ct_display_update_sidebar();
 
     return 0;
 }
 
-static void
+void
 ct_display_update_sidebar()
 {
-    mvwprintw(win_default, 5, CT_SCREEN_X * 2 + 4, "score: %d", score);
-    mvwprintw(win_default, 7, CT_SCREEN_X * 2 + 4, "change: k");
-    mvwprintw(win_default, 8, CT_SCREEN_X * 2 + 4, "left: h right: l");
-    mvwprintw(win_default, 9, CT_SCREEN_X * 2 + 4, "down: j");
-    mvwprintw(win_default, 9, CT_SCREEN_X * 2 + 4, "fast down: [space]");
-    wrefresh(win_default);
+    // show
+    int i, j;
+    struct block *b = next_b;
+    if (b) {
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                ct_display_show_cell(win_sidebar, CT_SIDEBAR_Y, CT_SIDEBAR_X, i + 1, j + 1, b->show[i][j]);
+            }
+
+        }
+    }
+
+    // 
+    mvwprintw(win_sidebar, 6, 2, "score: %d", score);
+    mvwprintw(win_sidebar, 7, 2, "change: k");
+    mvwprintw(win_sidebar, 8, 2, "left: h right: l");
+    mvwprintw(win_sidebar, 9, 2, "down: j");
+    mvwprintw(win_sidebar, 10, 2, "fast down: [space]");
+    wrefresh(win_sidebar);
 }
 
 static void
-ct_display_show_cell(int y, int x)
+ct_display_show_cell(WINDOW *win, int win_y, int win_x, int y, int x, char cell)
 {
     // check
-    if (y < 0 || y >= CT_SCREEN_Y) {
+    if (y < 0 || y >= win_y) {
         ct_debug_log("y reach out of screen");
-    } else if (x < 0 || x >= CT_SCREEN_X) {
+    } else if (x < 0 || x >= win_x) {
         ct_debug_log("x reach out of screen");
     }
 
-    char cell = ct_screen_buffer[y][x];
-
     // color
-    wattrset(win_screen, COLOR_PAIR(XCOLOR_OF(cell) % 8));
+    wattrset(win, COLOR_PAIR(XCOLOR_OF(cell) % 8));
 
     // show
     if (XSTATUS_OF(cell)) {
-        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, '[');
-        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ']');
+        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, '[');
+        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ']');
     } else {
-        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, ' ');
-        mvwaddch(win_screen, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ' ');
+        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, ' ');
+        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ' ');
     }
 }
 
@@ -153,7 +171,7 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     // show
     for (i = top_y; i <= btm_y; i++) {
         for (j = lft_x; j <= rgt_x; j++) {
-            ct_display_show_cell(i, j);
+            ct_display_show_cell(win_screen, CT_SCREEN_Y, CT_SCREEN_X, i, j, ct_screen_buffer[i][j]);
         }
     }
 

@@ -39,10 +39,10 @@ install: all
 
 clean:
 	$(RM) ct
+	# object files
+	$(RM) *.o
 	# indent backup files
 	$(RM) *~
-	# library objects
-	$(RM) $(LIB_OBJS)
 
 indent:
 	# try to find out all typenames defined by 'typedef'

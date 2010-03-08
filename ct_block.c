@@ -4,14 +4,11 @@ int cur_x = 0;
 int cur_y = 0;
 
 struct block *cur_b = NULL;
-int cur_type = 0;
-int cur_shape = 0;
-
+int cur_type, cur_shape;
 struct block *next_b = NULL;
-int next_type = 0;
-int next_shape = 0;
+int next_type, next_shape;
 
-struct block block[7][4] = {
+struct block blocks[7][4] = {
     /*
      * ----------
      * |        |
@@ -195,19 +192,13 @@ ct_block_init()
 
     for (i = 0; i < 7; i++) {
         for (j = 1; j < 4; j++) {
-            rotate_block(&block[i][j], &block[i][j - 1]);
+            rotate_block(&blocks[i][j], &blocks[i][j - 1]);
         }
     }
 
 }
 
-struct block *
-ct_block_get(int type, int shape)
-{
-    return &block[type % 7][shape % 4];
-}
-
-static int
+int
 ct_rand()
 {
     static int is_seeded = false;
@@ -221,9 +212,7 @@ ct_rand()
 }
 
 struct block *
-ct_block_rand()
+ct_block_get(int type, int shape)
 {
-    cur_shape = ct_rand();
-    cur_type = ct_rand();
-    return ct_block_get(cur_type, cur_shape);
+    return &blocks[type][shape];
 }
