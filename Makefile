@@ -5,7 +5,7 @@ CC = gcc
 RM = rm -f
 
 CFLAGS = -std=c99 -g -O2 -Wall 
-LDFLAGS = -lncurses
+LDFLAGS = -lncurses -lm
 
 LIB_H += ct.h
 LIB_H += ct_block.h
