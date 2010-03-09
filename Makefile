@@ -23,8 +23,6 @@ LIB_OBJS += ct_game.o
 LIB_OBJS += usage.o
 LIB_OBJS += wrapper.o
 
-LIBS =
-
 $(LIB_OBJS): $(LIB_H)
 
 ct: $(LIB_OBJS)
