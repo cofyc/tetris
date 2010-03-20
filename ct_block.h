@@ -1,5 +1,6 @@
 #ifndef CT_BLOCKS_H
 #define CT_BLOCKS_H
+
 #include "ct.h"
 
 struct block {
@@ -9,7 +10,6 @@ struct block {
     int y_min;
     int y_max;
 };
-
 
 extern struct block *cur_b;
 extern int cur_type, cur_shape;

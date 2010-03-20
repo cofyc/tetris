@@ -92,7 +92,9 @@ ct_display_init()
     }
 
     // sidebar info
-    win_sidebar = newwin(CT_SIDEBAR_Y * CT_SCREEN_CELL_Y, CT_SIDEBAR_X * CT_SCREEN_CELL_X, 0, (CT_SCREEN_X + 1) * CT_SCREEN_CELL_X);
+    win_sidebar =
+        newwin(CT_SIDEBAR_Y * CT_SCREEN_CELL_Y, CT_SIDEBAR_X * CT_SCREEN_CELL_X, 0,
+               (CT_SCREEN_X + 1) * CT_SCREEN_CELL_X);
     ct_display_update_sidebar();
 
     return 0;
@@ -107,12 +109,12 @@ ct_display_update_sidebar()
     if (b) {
         for (i = 0; i < 4; i++) {
             for (j = 0; j < 4; j++) {
-                ct_display_show_cell(win_sidebar, CT_SIDEBAR_Y, CT_SIDEBAR_X, i + 1, j + 1, b->show[i][j]);
+                ct_display_show_cell(win_sidebar, CT_SIDEBAR_Y, CT_SIDEBAR_X, i + 1, j + 1,
+                                     b->show[i][j]);
             }
 
         }
     }
-
     // 
     mvwprintw(win_sidebar, 6, 2, "score: %d", score);
     mvwprintw(win_sidebar, 7, 2, "change: k");
@@ -131,7 +133,6 @@ ct_display_show_cell(WINDOW *win, int win_y, int win_x, int y, int x, char cell)
     } else if (x < 0 || x >= win_x) {
         ct_debug_log("x reach out of screen");
     }
-
     // color
     wattrset(win, COLOR_PAIR(XCOLOR_OF(cell) % 8));
 
@@ -171,7 +172,8 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     // show
     for (i = top_y; i <= btm_y; i++) {
         for (j = lft_x; j <= rgt_x; j++) {
-            ct_display_show_cell(win_screen, CT_SCREEN_Y, CT_SCREEN_X, i, j, ct_screen_buffer[i][j]);
+            ct_display_show_cell(win_screen, CT_SCREEN_Y, CT_SCREEN_X, i, j,
+                                 ct_screen_buffer[i][j]);
         }
     }
 
@@ -214,7 +216,7 @@ ct_display_set_block(int y, int x, struct block *b)
 
         ct_display_update(i, i, 0, CT_SCREEN_X - 1);
         erased_lines[erased_num++] = i;
-      next:
+    next:
         continue;
     }
 

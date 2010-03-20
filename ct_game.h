@@ -5,4 +5,5 @@
 
 extern void ct_game_init();
 extern void ct_game_run();
+
 #endif
