@@ -29,10 +29,13 @@ struct ct_window {
     int y;
 };
 
+struct ct_window ct_win_sidebar;
+struct ct_window ct_win_main;
+
 static char ct_screen_buffer[CT_SCREEN_Y][CT_SCREEN_X];
 static char ct_screen_bg[CT_SCREEN_Y][CT_SCREEN_X];
 
-static void ct_display_show_cell(WINDOW *win, int win_y, int win_x, int y, int x, char cell);
+static void ct_display_show_cell(struct ct_window *ct_win, int y, int x, char cell);
 static void ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x);
 
 int
@@ -95,6 +98,14 @@ ct_display_init()
     win_sidebar =
         newwin(CT_SIDEBAR_Y * CT_SCREEN_CELL_Y, CT_SIDEBAR_X * CT_SCREEN_CELL_X, 0,
                (CT_SCREEN_X + 1) * CT_SCREEN_CELL_X);
+
+    ct_win_main.win = win_default;
+    ct_win_main.x = CT_SCREEN_X;
+    ct_win_main.y = CT_SCREEN_Y;
+    ct_win_sidebar.win = win_sidebar;
+    ct_win_sidebar.x = CT_SIDEBAR_X;
+    ct_win_sidebar.y = CT_SIDEBAR_Y;
+
     ct_display_update_sidebar();
 
     return 0;
@@ -109,7 +120,7 @@ ct_display_update_sidebar()
     if (b) {
         for (i = 0; i < 4; i++) {
             for (j = 0; j < 4; j++) {
-                ct_display_show_cell(win_sidebar, CT_SIDEBAR_Y, CT_SIDEBAR_X, i + 1, j + 1,
+                ct_display_show_cell(&ct_win_sidebar, i + 1, j + 1,
                                      b->show[i][j]);
             }
 
@@ -125,24 +136,25 @@ ct_display_update_sidebar()
 }
 
 static void
-ct_display_show_cell(WINDOW *win, int win_y, int win_x, int y, int x, char cell)
+ct_display_show_cell(struct ct_window *ct_win, int y, int x, char cell)
 {
     // check
-    if (y < 0 || y >= win_y) {
+    if (y < 0 || y >= ct_win->y) {
         ct_debug_log("y reach out of screen");
-    } else if (x < 0 || x >= win_x) {
+    } else if (x < 0 || x >= ct_win->x) {
         ct_debug_log("x reach out of screen");
     }
+
     // color
-    wattrset(win, COLOR_PAIR(XCOLOR_OF(cell) % 8));
+    wattrset(ct_win->win, COLOR_PAIR(XCOLOR_OF(cell) % 8));
 
     // show
     if (XSTATUS_OF(cell)) {
-        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, '[');
-        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ']');
+        mvwaddch(ct_win->win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, '[');
+        mvwaddch(ct_win->win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ']');
     } else {
-        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, ' ');
-        mvwaddch(win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ' ');
+        mvwaddch(ct_win->win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X, ' ');
+        mvwaddch(ct_win->win, y * CT_SCREEN_CELL_Y, x * CT_SCREEN_CELL_X + 1, ' ');
     }
 }
 
@@ -172,7 +184,7 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     // show
     for (i = top_y; i <= btm_y; i++) {
         for (j = lft_x; j <= rgt_x; j++) {
-            ct_display_show_cell(win_screen, CT_SCREEN_Y, CT_SCREEN_X, i, j,
+            ct_display_show_cell(&ct_win_main, i, j,
                                  ct_screen_buffer[i][j]);
         }
     }
