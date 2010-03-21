@@ -189,6 +189,13 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     }
 
     wrefresh(ct_win_main.win);
+
+/*
+ * Show cursor on sidebar, cuz we can not hide it in Mac OS X Terminal.
+ */
+#ifdef __APPLE__
+    ct_display_update_sidebar();
+#endif
 }
 
 int
