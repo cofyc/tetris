@@ -3,53 +3,22 @@
 #include "ct_display.h"
 #include "ct_debug.h"
 
-static void ct_game_block_new();
+static void ct_game_end();
 
-void
+int
 ct_game_init()
 {
-    ct_game_block_new();
-}
-
-void
-ct_game_end()
-{
-    ct_display_end();
-    printf("You lose.\n");
-    exit(0);
-}
-
-static void
-ct_game_block_new()
-{
-    if (!next_b) {
-        next_type = ct_rand() % 7;
-        next_shape = ct_rand() % 4;
-        next_b = ct_block_get(next_type, next_shape);
-    }
-
-    cur_b = next_b;
-    cur_type = next_type;
-    cur_shape = next_shape;
-
-    next_type = ct_rand() % 7;
-    next_shape = ct_rand() % 4;
-    next_b = ct_block_get(next_type, next_shape);
-
-    cur_x = CT_SCREEN_X / 2 - 2;
-    cur_y = 0;
-
-    ct_display_move_block(cur_y, cur_x, cur_b);
-    ct_display_update_sidebar();
+    ct_display_block_new();
+    return 0;
 }
 
 static int
 ct_game_block_down()
 {
-    int status = ct_display_check_shape(cur_b, cur_y + 1, cur_x);
+    int status = ct_display_block_check(cur_b, cur_y + 1, cur_x);
     if (!status) {
         cur_y++;
-        ct_display_move_block(cur_y, cur_x, cur_b);
+        ct_display_block_move(cur_y, cur_x, cur_b);
     }
     return status;
 }
@@ -57,10 +26,10 @@ ct_game_block_down()
 static int
 ct_game_block_left()
 {
-    int status = ct_display_check_shape(cur_b, cur_y, cur_x - 1);
+    int status = ct_display_block_check(cur_b, cur_y, cur_x - 1);
     if (!status) {
         cur_x--;
-        ct_display_move_block(cur_y, cur_x, cur_b);
+        ct_display_block_move(cur_y, cur_x, cur_b);
     }
     return status;
 }
@@ -68,10 +37,10 @@ ct_game_block_left()
 static int
 ct_game_block_right()
 {
-    int status = ct_display_check_shape(cur_b, cur_y, cur_x + 1);
+    int status = ct_display_block_check(cur_b, cur_y, cur_x + 1);
     if (!status) {
         cur_x++;
-        ct_display_move_block(cur_y, cur_x, cur_b);
+        ct_display_block_move(cur_y, cur_x, cur_b);
     }
     return status;
 }
@@ -79,12 +48,12 @@ ct_game_block_right()
 static int
 ct_game_block_change()
 {
-    int status = ct_display_check_shape(ct_block_get(cur_type, (cur_shape + 1) % 4), cur_y, cur_x);
+    int status = ct_display_block_check(ct_block_get(cur_type, (cur_shape + 1) % 4), cur_y, cur_x);
     if (!status) {
         cur_shape++;
         cur_shape = cur_shape % 4;
         cur_b = ct_block_get(cur_type, cur_shape);
-        ct_display_move_block(cur_y, cur_x, cur_b);
+        ct_display_block_move(cur_y, cur_x, cur_b);
     }
     return status;
 }
@@ -94,17 +63,28 @@ ct_game_daemon()
 {
     int status = ct_game_block_down();
     if (status) {
-        if (!ct_display_set_block(cur_y, cur_x, cur_b)) {
-            ct_game_block_new();
+        if (!ct_display_block_set(cur_y, cur_x, cur_b)) {
+            ct_display_block_new();
         } else {
             ct_game_end();
         }
     }
 }
 
-void
-ct_game_main()
+int
+ct_game_run()
 {
+    struct itimerval tout_val, ovalue;
+    tout_val.it_interval.tv_usec = 400 * 1000;
+    tout_val.it_interval.tv_sec = 0;
+    tout_val.it_value.tv_usec = 400 * 1000;
+    tout_val.it_value.tv_sec = 0;
+    if (setitimer(ITIMER_REAL, &tout_val, &ovalue) < 0)
+        error("setitimer error");
+
+    if (signal(SIGALRM, ct_game_daemon) == SIG_ERR)
+        error("signal error");
+
     for (;;) {
         int c = getch();
         switch (c) {
@@ -129,21 +109,14 @@ ct_game_main()
                 break;
         }
     }
+
+    return 0;
 }
 
-void
-ct_game_run()
+static void
+ct_game_end()
 {
-    struct itimerval tout_val, ovalue;
-    tout_val.it_interval.tv_usec = 400 * 1000;
-    tout_val.it_interval.tv_sec = 0;
-    tout_val.it_value.tv_usec = 400 * 1000;
-    tout_val.it_value.tv_sec = 0;
-    if (setitimer(ITIMER_REAL, &tout_val, &ovalue) < 0)
-        error("setitimer error");
-
-    if (signal(SIGALRM, ct_game_daemon) == SIG_ERR)
-        error("signal error");
-
-    ct_game_main();
+    ct_display_end();
+    printf("You lose.\n");
+    exit(0);
 }

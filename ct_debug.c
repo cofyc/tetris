@@ -8,13 +8,19 @@ static FILE *ct_debug_logfile = NULL;
 void
 ct_debug_init()
 {
-    ct_debug_logfile = fopen(CT_LOG_FILENAME, "a+");
 
-    if (!ct_debug_logfile) {
-        die("ct_debug init failed.");
-    }
+}
 
+void
+ct_debug_enable()
+{
     ct_debug_is_on = true;
+}
+
+void
+ct_debug_disable()
+{
+    ct_debug_is_on = false;
 }
 
 void
@@ -22,6 +28,11 @@ ct_debug_log(const char *fmt, ...)
 {
     if (!ct_debug_is_on) {
         return;
+    }
+
+    if (!ct_debug_logfile) {
+        ct_debug_logfile = fopen(CT_LOG_FILENAME, "a+");
+        die("ct_debug init failed.");
     }
 
     char msg[4096];

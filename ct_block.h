@@ -16,7 +16,7 @@ extern int cur_type, cur_shape;
 extern int cur_y, cur_x;
 extern struct block *next_b;
 extern int next_type, next_shape;
-extern void ct_block_init();
+extern int ct_block_init();
 extern int ct_rand();
 extern struct block *ct_block_get(int type, int shape);
 

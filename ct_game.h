@@ -3,7 +3,7 @@
 
 #include "ct.h"
 
-extern void ct_game_init();
-extern void ct_game_run();
+extern int ct_game_init();
+extern int ct_game_run();
 
 #endif

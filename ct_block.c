@@ -160,6 +160,21 @@ struct block blocks[7][4] = {
      },
 };
 
+static void block_rotate(struct block *to, struct block *from);
+
+int
+ct_block_init()
+{
+    int i, j;
+
+    for (i = 0; i < 7; i++) {
+        for (j = 1; j < 4; j++) {
+            block_rotate(&blocks[i][j], &blocks[i][j - 1]);
+        }
+    }
+    return 0;
+}
+
 /**
  *
  * 90" clockwise rotator
@@ -168,7 +183,7 @@ struct block blocks[7][4] = {
  * x axis -> reverse of x axis
  */
 static void
-rotate_block(struct block *to, struct block *from)
+block_rotate(struct block *to, struct block *from)
 {
     int i, j;
 
@@ -183,19 +198,6 @@ rotate_block(struct block *to, struct block *from)
     to->x_max = 4 - 1 - from->y_min;
     to->y_min = from->x_min;
     to->y_max = from->x_max;
-}
-
-void
-ct_block_init()
-{
-    int i, j;
-
-    for (i = 0; i < 7; i++) {
-        for (j = 1; j < 4; j++) {
-            rotate_block(&blocks[i][j], &blocks[i][j - 1]);
-        }
-    }
-
 }
 
 int
