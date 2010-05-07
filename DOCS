@@ -1,17 +1,17 @@
 
-    The CTetris
+    The CT
 
 Project:
-    * name: #2
+    * name: ct
     * description: C of Teteris
 
 Program:
-    * name: #1
-    * binary file name: #1
+    * name: ct
+    * binary file name: ct
     * namespace prefix:
-        - Function: #1L
-        - Constant: #1U
-        - Variable: #1L
+        - Function: ct
+        - Constant: CT
+        - Variable: ct
     * namespace separator:
         - Function: _
         - Constant: _
@@ -27,7 +27,7 @@ Library:
         - BSD
         - GNU Extensions
         - ...
-    * Non-Standard
+    * Third-Party
         - ncurses
 
 Build System:

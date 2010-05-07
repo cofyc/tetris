@@ -1,5 +1,5 @@
-#ifndef CT_BLOCKS_H
-#define CT_BLOCKS_H
+#ifndef CT_BLOCK_H
+#define CT_BLOCK_H
 
 #include "ct.h"
 
