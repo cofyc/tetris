@@ -1,4 +1,4 @@
-#include "ct.h"
+#include "usage.h"
 
 void
 usage(const char *err)
