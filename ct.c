@@ -4,32 +4,32 @@
 #include "ct_debug.h"
 #include "ct_game.h"
 
+const char ct_usage_string[] = 
+    "Usage: ct 1.0\n"
+    "   -h  show this help info\n"
+    "   -d  enable debug mode\n";
+
 int
 main(int argc, char **argv)
 {
-    ct_debug_init();
-    ct_display_init();
-    ct_block_init();
-    ct_game_init();
-
-    static struct option long_options[] = {
-        {"debug", no_argument, 0, 'd'},
-        {0, 0, 0, 0},
-    };
-
     int c;
-    int option_index = 0;
-    while ((c = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
+    while ((c = getopt(argc, argv, "dh")) != -1) {
         switch (c) {
             case 'd':
+                ct_debug_init();
                 ct_debug_enable();
                 break;
-            case '?':
-                break;
+            case 'h':
+                printf("%s", ct_usage_string);
+                exit(0);
             default:
                 break;
         }
     }
+
+    ct_display_init();
+    ct_block_init();
+    ct_game_init();
 
     return ct_game_run();
 }
