@@ -167,8 +167,6 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
 {
     int i, j;
 
-    struct block *b = cur_b;
-
     // cur bg
     for (i = top_y; i <= btm_y; i++) {
         for (j = lft_x; j <= rgt_x; j++) {
@@ -177,8 +175,8 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     }
 
     // cur block
-    for (i = b->y_min; i <= b->y_max; i++) {
-        for (j = b->x_min; j <= b->x_max; j++) {
+    for (i = cur_b->y_min; i <= cur_b->y_max; i++) {
+        for (j = cur_b->x_min; j <= cur_b->x_max; j++) {
             if (XSTATUS_OF(cur_b->show[i][j])) {
                 ct_screen_buffer[cur_y + i][cur_x + j] = cur_b->show[i][j];
             }
@@ -264,6 +262,7 @@ ct_display_block_set(int y, int x, struct block *b)
     }
 
     // erase lines
+    ct_debug_log("erased num: %d",erased_num);
     int _i;
     for (i = 0; i < erased_num; i++) {
         for (_i = erased_lines[i]; _i >= 0 && _i < CT_DISPLAY_MAIN_Y; _i--) {
@@ -278,8 +277,7 @@ ct_display_block_set(int y, int x, struct block *b)
                     ct_screen_bg[_i][j] = ct_screen_bg[_i - 1][j];
                 }
 
-                ct_display_update(_i, CT_DISPLAY_MAIN_Y - 1, j, CT_DISPLAY_MAIN_X - 1);
-                ct_display_update(_i - 1, CT_DISPLAY_MAIN_Y - 1, j, CT_DISPLAY_MAIN_X - 1);
+                ct_display_update(0, CT_DISPLAY_MAIN_Y - 1, 0, CT_DISPLAY_MAIN_X - 1);
             }
         }
     }
@@ -300,6 +298,7 @@ ct_display_block_set(int y, int x, struct block *b)
         default:
             break;
     }
+    ct_debug_log("score: %d", score);
 
     ct_display_update_sidebar();
 

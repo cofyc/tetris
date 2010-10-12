@@ -32,7 +32,9 @@ ct_debug_log(const char *fmt, ...)
 
     if (!ct_debug_logfile) {
         ct_debug_logfile = fopen(CT_LOG_FILENAME, "a+");
-        die("ct_debug init failed.");
+        if (ct_debug_logfile == NULL) {
+            die("ct_debug init failed.");
+        }
     }
 
     char msg[4096];
