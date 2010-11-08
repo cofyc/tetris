@@ -1,8 +1,6 @@
 #ifndef CT_H
 #define CT_H
 
-#define _GNU_SOURCE
-
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>

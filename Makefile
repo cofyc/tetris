@@ -4,7 +4,7 @@ all::
 CC = gcc
 RM = rm -f
 
-CFLAGS = -std=c99 -g -O2 -Wall 
+CFLAGS = -std=c99 -g -O2 -Wall
 LDFLAGS = -lncurses -lm
 
 LIB_H += ct.h
@@ -26,7 +26,7 @@ LIB_OBJS += wrapper.o
 $(LIB_OBJS): $(LIB_H)
 
 ct: $(LIB_OBJS)
-	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
+	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^
 
 .PHONY: all install clean indent tags
 
