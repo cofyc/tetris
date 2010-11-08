@@ -24,9 +24,6 @@ Library:
     * Standard 
         - ISO C
         - POSIX
-        - BSD
-        - GNU Extensions
-        - ...
     * Third-Party
         - ncurses
 
