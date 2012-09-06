@@ -3,8 +3,6 @@
 #include "ct_display.h"
 #include "ct_debug.h"
 
-static void ct_game_end();
-
 int
 ct_game_init()
 {
@@ -66,7 +64,9 @@ ct_game_daemon()
         if (!ct_display_block_set(cur_y, cur_x, cur_b)) {
             ct_display_block_new();
         } else {
-            ct_game_end();
+            printf("You lose.\n");
+            ct_display_end();
+            exit(0);
         }
     }
 }
@@ -101,6 +101,10 @@ ct_game_run()
             case 'l':
                 ct_game_block_right();
                 break;
+            case 'q':
+                ct_display_end();
+                exit(0);
+                break;
             case '\x20':
                 while (!ct_game_block_down());
                 break;
@@ -111,12 +115,4 @@ ct_game_run()
     }
 
     return 0;
-}
-
-static void
-ct_game_end()
-{
-    ct_display_end();
-    printf("You lose.\n");
-    exit(0);
 }

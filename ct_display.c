@@ -393,5 +393,6 @@ int
 ct_display_end()
 {
     endwin();
+    printf("You got score: %d\n", score);
     return 0;
 }
