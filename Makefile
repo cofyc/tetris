@@ -22,8 +22,12 @@ LIB_OBJS += ct_display.o
 LIB_OBJS += ct_game.o
 LIB_OBJS += usage.o
 LIB_OBJS += wrapper.o
+LIB_OBJS += argparse/argparse.o
 
 $(LIB_OBJS): $(LIB_H)
+
+argparse/argparse.o: argparse/Makefile
+	cd argparse && make
 
 tetris: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^

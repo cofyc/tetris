@@ -3,29 +3,29 @@
 #include "ct_display.h"
 #include "ct_debug.h"
 #include "ct_game.h"
+#include "argparse/argparse.h"
 
-const char ct_usage_string[] =
-    "Usage: ct 1.0\n"
-    "   -h  show this help info\n" "   -d  enable debug mode\n";
+static const char *const tetris_usage[] = { 
+    "tetris [options]",
+    NULL
+};
 
 int
-main(int argc, char **argv)
+main(int argc, const char **argv)
 {
-    int c;
-    while ((c = getopt(argc, argv, "dh")) != -1) {
-        switch (c) {
-        case 'd':
-            ct_debug_init();
-            ct_debug_enable();
-            break;
-        case 'h':
-            printf("%s", ct_usage_string);
-            exit(0);
-        default:
-            break;
-        }
+    int debug = false;
+    struct argparse_option options[] = {
+        OPT_HELP(),
+        OPT_BOOLEAN('d', "debug", &debug, "log debug info"),
+        OPT_END(),
+    };
+    struct argparse argparse;
+    argparse_init(&argparse, options, tetris_usage, 0);
+    argc = argparse_parse(&argparse, argc, argv);
+    if (debug) {
+        ct_debug_init();
+        ct_debug_enable();
     }
-
     ct_display_init();
     ct_block_init();
     ct_game_init();

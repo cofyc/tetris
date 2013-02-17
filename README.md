@@ -12,8 +12,8 @@
 
 ## How to play
     
-    $ ct    # start the game,
-    $ ct -h # see cli options
+    $ tetris    # start the game,
+    $ tetris -h # see cli options
 
 When you are plaing, you can see instructions and score on the right side of game screen.
 
