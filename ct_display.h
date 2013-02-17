@@ -3,7 +3,7 @@
 
 #include <ncurses.h>
 
-#include "ct.h"
+#include "tetris.h"
 #include "ct_block.h"
 
 extern int ct_display_init();

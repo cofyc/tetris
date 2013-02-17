@@ -7,7 +7,7 @@ RM = rm -f
 CFLAGS = -std=c99 -g -O2 -Wall
 LDFLAGS = -lncurses -lm
 
-LIB_H += ct.h
+LIB_H += tetris.h
 LIB_H += ct_block.h
 LIB_H += ct_debug.h
 LIB_H += ct_display.h
@@ -15,7 +15,7 @@ LIB_H += ct_game.h
 LIB_H += usage.h
 LIB_H += wrapper.h
 
-LIB_OBJS += ct.o
+LIB_OBJS += tetris.o
 LIB_OBJS += ct_block.o
 LIB_OBJS += ct_debug.o
 LIB_OBJS += ct_display.o
@@ -25,18 +25,18 @@ LIB_OBJS += wrapper.o
 
 $(LIB_OBJS): $(LIB_H)
 
-ct: $(LIB_OBJS)
+tetris: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^
 
 .PHONY: all install clean indent tags
 
-all:: ct
+all:: tetris
 
 install: all
-	install -m 755 ct /usr/local/bin/
+	install -m 755 tetris /usr/local/bin/
 
 clean:
-	$(RM) ct
+	$(RM) tetris
 	# object files
 	$(RM) *.o
 	# indent backup files

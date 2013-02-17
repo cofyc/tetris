@@ -1,4 +1,4 @@
-#include "ct.h"
+#include "tetris.h"
 #include "ct_block.h"
 #include "ct_display.h"
 #include "ct_debug.h"

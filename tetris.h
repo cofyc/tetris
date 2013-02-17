@@ -1,5 +1,5 @@
-#ifndef CT_H
-#define CT_H
+#ifndef TETRIS_H
+#define TETRIS_H
 
 #include <assert.h>
 #include <ctype.h>

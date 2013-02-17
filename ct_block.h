@@ -1,7 +1,7 @@
 #ifndef CT_BLOCK_H
 #define CT_BLOCK_H
 
-#include "ct.h"
+#include "tetris.h"
 
 struct block {
     char show[4][4];
