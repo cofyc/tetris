@@ -46,7 +46,9 @@ ct_game_block_right()
 static int
 ct_game_block_change()
 {
-    int status = ct_display_block_check(ct_block_get(cur_type, (cur_shape + 1) % 4), cur_y, cur_x);
+    int status =
+        ct_display_block_check(ct_block_get(cur_type, (cur_shape + 1) % 4),
+                               cur_y, cur_x);
     if (!status) {
         cur_shape++;
         cur_shape = cur_shape % 4;
@@ -88,29 +90,29 @@ ct_game_run()
     for (;;) {
         int c = getch();
         switch (c) {
-            case 'h':
-                ct_game_block_left();
-                break;
-            case 'j':
-                ct_game_block_down();
-                ct_game_block_down();
-                break;
-            case 'k':
-                ct_game_block_change();
-                break;
-            case 'l':
-                ct_game_block_right();
-                break;
-            case 'q':
-                ct_display_end();
-                exit(0);
-                break;
-            case '\x20':
-                while (!ct_game_block_down());
-                break;
-            default:
-                ct_debug_log("keystroke: %d", c);
-                break;
+        case 'h':
+            ct_game_block_left();
+            break;
+        case 'j':
+            ct_game_block_down();
+            ct_game_block_down();
+            break;
+        case 'k':
+            ct_game_block_change();
+            break;
+        case 'l':
+            ct_game_block_right();
+            break;
+        case 'q':
+            ct_display_end();
+            exit(0);
+            break;
+        case '\x20':
+            while (!ct_game_block_down());
+            break;
+        default:
+            ct_debug_log("keystroke: %d", c);
+            break;
         }
     }
 

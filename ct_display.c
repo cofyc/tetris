@@ -88,26 +88,30 @@ ct_display_init()
     for (int i = CT_DISPLAY_MAIN_Y; i < CT_DISPLAY_MAIN_Y + 1; i++) {
         for (int j = 0; j < CT_DISPLAY_MAIN_X + 1; j++) {
             mvwaddch(stdscr, i * CT_DISPLAY_CELL_Y, j * CT_DISPLAY_CELL_X, '[');
-            mvwaddch(stdscr, i * CT_DISPLAY_CELL_Y, j * CT_DISPLAY_CELL_X + 1, ']');
+            mvwaddch(stdscr, i * CT_DISPLAY_CELL_Y, j * CT_DISPLAY_CELL_X + 1,
+                     ']');
         }
     }
     for (int i = 0; i < CT_DISPLAY_MAIN_Y + 1; i++) {
         for (int j = CT_DISPLAY_MAIN_X; j < CT_DISPLAY_MAIN_X + 1; j++) {
             mvwaddch(stdscr, i * CT_DISPLAY_CELL_Y, j * CT_DISPLAY_CELL_X, '[');
-            mvwaddch(stdscr, i * CT_DISPLAY_CELL_Y, j * CT_DISPLAY_CELL_X + 1, ']');
+            mvwaddch(stdscr, i * CT_DISPLAY_CELL_Y, j * CT_DISPLAY_CELL_X + 1,
+                     ']');
         }
     }
     wrefresh(stdscr);
 
     // sidebar info
     ct_win_main.win =
-        newwin(CT_DISPLAY_MAIN_Y * CT_DISPLAY_CELL_Y, CT_DISPLAY_MAIN_X * CT_DISPLAY_CELL_X, 0, 0);
+        newwin(CT_DISPLAY_MAIN_Y * CT_DISPLAY_CELL_Y,
+               CT_DISPLAY_MAIN_X * CT_DISPLAY_CELL_X, 0, 0);
     ct_win_main.x = CT_DISPLAY_MAIN_X;
     ct_win_main.y = CT_DISPLAY_MAIN_Y;
 
     ct_win_sidebar.win =
-        newwin(CT_DISPLAY_SIDEBAR_Y * CT_DISPLAY_CELL_Y, CT_DISPLAY_SIDEBAR_X * CT_DISPLAY_CELL_X,
-               0, (CT_DISPLAY_MAIN_X + 1) * CT_DISPLAY_CELL_X);
+        newwin(CT_DISPLAY_SIDEBAR_Y * CT_DISPLAY_CELL_Y,
+               CT_DISPLAY_SIDEBAR_X * CT_DISPLAY_CELL_X, 0,
+               (CT_DISPLAY_MAIN_X + 1) * CT_DISPLAY_CELL_X);
     ct_win_sidebar.x = CT_DISPLAY_SIDEBAR_X;
     ct_win_sidebar.y = CT_DISPLAY_SIDEBAR_Y;
 
@@ -130,11 +134,15 @@ ct_display_show_cell(struct ct_window *ct_win, int y, int x, char cell)
 
     // show
     if (XSTATUS_OF(cell)) {
-        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X, '[');
-        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X + 1, ']');
+        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X,
+                 '[');
+        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X + 1,
+                 ']');
     } else {
-        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X, ' ');
-        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X + 1, ' ');
+        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X,
+                 ' ');
+        mvwaddch(ct_win->win, y * CT_DISPLAY_CELL_Y, x * CT_DISPLAY_CELL_X + 1,
+                 ' ');
     }
 
     return 0;
@@ -186,6 +194,7 @@ ct_display_update(int top_y, int btm_y, int lft_x, int rgt_x)
     // show
     for (i = top_y; i <= btm_y; i++) {
         for (j = lft_x; j <= rgt_x; j++) {
+            ct_display_show_cell(&ct_win_main, i, j, ct_screen_buffer[i][j]);
             ct_display_show_cell(&ct_win_main, i, j, ct_screen_buffer[i][j]);
         }
     }
@@ -257,19 +266,20 @@ ct_display_block_set(int y, int x, struct block *b)
 
         ct_display_update(i, i, 0, CT_DISPLAY_MAIN_X - 1);
         erased_lines[erased_num++] = i;
-    next:
+next:
         continue;
     }
 
     // erase lines
-    ct_debug_log("erased num: %d",erased_num);
+    ct_debug_log("erased num: %d", erased_num);
     int _i;
     for (i = 0; i < erased_num; i++) {
         for (_i = erased_lines[i]; _i >= 0 && _i < CT_DISPLAY_MAIN_Y; _i--) {
             for (j = 0; j < CT_DISPLAY_MAIN_X; j++) {
                 if ((_i - 1) < 0) {
-                    ct_debug_log("line %d to line %d, but use blank line as line %d ", _i - 1, _i,
-                                 _i - 1);
+                    ct_debug_log
+                        ("line %d to line %d, but use blank line as line %d ",
+                         _i - 1, _i, _i - 1);
                     // out of screen, use blank line
                     ct_screen_bg[_i][j] = 0;
                 } else {
@@ -277,26 +287,27 @@ ct_display_block_set(int y, int x, struct block *b)
                     ct_screen_bg[_i][j] = ct_screen_bg[_i - 1][j];
                 }
 
-                ct_display_update(0, CT_DISPLAY_MAIN_Y - 1, 0, CT_DISPLAY_MAIN_X - 1);
+                ct_display_update(0, CT_DISPLAY_MAIN_Y - 1, 0,
+                                  CT_DISPLAY_MAIN_X - 1);
             }
         }
     }
 
     switch (erased_num) {
-        case 1:
-            score++;
-            break;
-        case 2:
-            score += 3;
-            break;
-        case 3:
-            score += 7;
-            break;
-        case 4:
-            score += 13;
-            break;
-        default:
-            break;
+    case 1:
+        score++;
+        break;
+    case 2:
+        score += 3;
+        break;
+    case 3:
+        score += 7;
+        break;
+    case 4:
+        score += 13;
+        break;
+    default:
+        break;
     }
     ct_debug_log("score: %d", score);
 
@@ -322,7 +333,8 @@ ct_display_block_check(struct block *b, int y, int x)
         int i, j;
         for (i = b->y_min; i <= b->y_max; i++) {
             for (j = b->x_min; j <= b->x_max; j++) {
-                if (XSTATUS_OF(b->show[i][j]) && XSTATUS_OF(ct_screen_bg[y + i][x + j])) {
+                if (XSTATUS_OF(b->show[i][j])
+                    && XSTATUS_OF(ct_screen_bg[y + i][x + j])) {
                     return 5;
                 }
             }

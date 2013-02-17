@@ -1,4 +1,4 @@
-# The CTetris
+# The Tetris
 
 ## Overview
 
@@ -36,3 +36,8 @@ The *Hard Drop* is performed by pressing the space bar button to cause the Tetri
 ## Playing on Mac OS X
 
 I strongly recommend iTerm2 (<http://www.iterm2.com/>), because Mac OS X native Terminal cannot hide the terminal cursor which is very annoying!.
+
+## References
+
+0. http://en.wikipedia.org/wiki/Ncurses
+1. http://invisible-island.net/ncurses/ncurses-intro.html
