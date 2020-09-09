@@ -4,7 +4,7 @@ all::
 CC = cc
 RM = rm -f
 
-CFLAGS = -std=c99 -g -O2 -Wall
+CFLAGS = -g -O2 -Wall
 LDFLAGS = -lncurses -lm
 
 LIB_H += tetris.h
