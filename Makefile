@@ -1,10 +1,10 @@
 # The default target
 all::
 
-CC = gcc
+CC = cc
 RM = rm -f
 
-CFLAGS = -std=c99 -g -O2 -Wall
+CFLAGS = -g -O2 -Wall
 LDFLAGS = -lncurses -lm
 
 LIB_H += tetris.h
@@ -30,7 +30,7 @@ argparse/argparse.o: argparse/Makefile
 	cd argparse && make
 
 tetris: $(LIB_OBJS)
-	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 .PHONY: all install clean indent tags
 
